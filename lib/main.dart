@@ -1,6 +1,8 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  debugPaintSizeEnabled = true;
   runApp(const MyApp());
 }
 
@@ -10,10 +12,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return const MaterialApp(
+    return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: Text('hello'),
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              children: [],
+            ),
+          ),
         ),
       ),
     );
