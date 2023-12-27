@@ -43,7 +43,7 @@ final Map<Typos, TextStyle> typos = {
   Typos.T1_500: defaultFont(
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    height: 1.43,
+    height: 1.42,
   ),
   Typos.T1_400: defaultFont(
     fontSize: 14,

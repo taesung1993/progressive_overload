@@ -1,7 +1,5 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
-import 'package:progressive_overload/widgets/HomeCalendar.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
@@ -19,9 +17,7 @@ class MyApp extends StatelessWidget {
         body: SafeArea(
           child: Center(
             child: Column(
-              children: [
-                HomeCalendar(),
-              ],
+              children: [],
             ),
           ),
         ),
