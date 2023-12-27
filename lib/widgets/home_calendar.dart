@@ -98,7 +98,7 @@ class _HomeCalendarState extends State<HomeCalendar>
         Stack(
           children: [
             Container(
-              color: const Color(0xfff3f3f3),
+              color: pallete[Pallete.primary3],
               padding: const EdgeInsets.only(
                 top: 12,
                 bottom: 34,
@@ -131,8 +131,8 @@ class _HomeCalendarState extends State<HomeCalendar>
                   dowBuilder: (context, day) {
                     return Center(
                       child: Text(days[day.weekday],
-                          style: typos[Typos.T1_400]!.copyWith(
-                            color: const Color(0xff8F9BB3),
+                          style: typos[Typos.T2_500]!.copyWith(
+                            color: pallete[Pallete.darkGrey],
                           )),
                     );
                   },
@@ -150,7 +150,7 @@ class _HomeCalendarState extends State<HomeCalendar>
                           child: Text(
                             day.day.toString(),
                             style: typos[Typos.T1_400]!.copyWith(
-                              color: const Color(0xff222B45),
+                              color: pallete[Pallete.black],
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -185,7 +185,7 @@ class _HomeCalendarState extends State<HomeCalendar>
               ),
             ),
             Positioned(
-              bottom: 8,
+              bottom: 12,
               left: 0,
               right: 0,
               child: GestureDetector(
@@ -202,20 +202,22 @@ class _HomeCalendarState extends State<HomeCalendar>
                     switch (direction) {
                       case 'upward':
                         _format = CalendarFormat.week;
+                        _animationController.reverse(from: 0.5);
                         break;
                       case 'downward':
                         _format = CalendarFormat.month;
+                        _animationController.forward(from: 0.0);
                         break;
                     }
                   });
                 },
                 child: Center(
                   child: Container(
-                    width: 48,
-                    height: 8,
+                    width: 44,
+                    height: 4,
                     decoration: BoxDecoration(
                       color: const Color(0xffCED3DE).withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(9999),
                     ),
                   ),
                 ),

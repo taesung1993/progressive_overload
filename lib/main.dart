@@ -1,6 +1,5 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
-import 'package:progressive_overload/widgets/training_set_item.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
@@ -18,9 +17,7 @@ class MyApp extends StatelessWidget {
         body: SafeArea(
           child: Center(
             child: Column(
-              children: [
-                TrainingSetItem(),
-              ],
+              children: [],
             ),
           ),
         ),
