@@ -20,6 +20,7 @@ class _HomeCalendarState extends State<HomeCalendar>
   CalendarFormat _format = CalendarFormat.week;
   DateTime _now = DateTime.now();
   DateTime _selectedDay = DateTime.now();
+  String direction = '';
 
   @override
   void initState() {
@@ -94,92 +95,133 @@ class _HomeCalendarState extends State<HomeCalendar>
             ],
           ),
         ),
-        Container(
-          color: const Color(0xfff3f3f3),
-          padding: const EdgeInsets.only(
-            top: 12,
-            bottom: 34,
-            left: 31,
-            right: 31,
-          ),
-          child: TableCalendar(
-            firstDay: DateTime.utc(2010, 10, 16),
-            lastDay: DateTime.utc(2030, 3, 14),
-            focusedDay: _now,
-            calendarFormat: _format,
-            daysOfWeekHeight: 18,
-            headerVisible: false,
-            startingDayOfWeek: StartingDayOfWeek.monday,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _now = focusedDay;
-              });
-            },
-            onPageChanged: (focusedDay) {
-              setState(() {
-                _now = focusedDay;
-              });
-            },
-            calendarBuilders: CalendarBuilders(
-              dowBuilder: (context, day) {
-                return Center(
-                  child: Text(days[day.weekday],
-                      style: typos[Typos.T1_400]!.copyWith(
-                        color: const Color(0xff8F9BB3),
-                      )),
-                );
-              },
-              todayBuilder: (context, day, focusedDay) {
-                return Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 5,
-                        horizontal: 7,
-                      ),
-                      child: Text(
-                        day.day.toString(),
-                        style: typos[Typos.T1_400]!.copyWith(
-                          color: const Color(0xff222B45),
+        Stack(
+          children: [
+            Container(
+              color: const Color(0xfff3f3f3),
+              padding: const EdgeInsets.only(
+                top: 12,
+                bottom: 34,
+                left: 31,
+                right: 31,
+              ),
+              child: TableCalendar(
+                firstDay: DateTime.utc(2010, 10, 16),
+                lastDay: DateTime.utc(2030, 3, 14),
+                focusedDay: _now,
+                calendarFormat: _format,
+                daysOfWeekHeight: 18,
+                headerVisible: false,
+                startingDayOfWeek: StartingDayOfWeek.monday,
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _now = focusedDay;
+                  });
+                },
+                onPageChanged: (focusedDay) {
+                  setState(() {
+                    _now = focusedDay;
+                  });
+                },
+                calendarBuilders: CalendarBuilders(
+                  dowBuilder: (context, day) {
+                    return Center(
+                      child: Text(days[day.weekday],
+                          style: typos[Typos.T1_400]!.copyWith(
+                            color: const Color(0xff8F9BB3),
+                          )),
+                    );
+                  },
+                  todayBuilder: (context, day, focusedDay) {
+                    return Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                );
-              },
-              selectedBuilder: (context, day, focusedDay) {
-                return Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: pallete[Pallete.primary1],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 5,
-                        horizontal: 7,
-                      ),
-                      child: Text(
-                        day.day.toString(),
-                        style: typos[Typos.T1_400]!.copyWith(
-                          color: pallete[Pallete.white],
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 7,
+                          ),
+                          child: Text(
+                            day.day.toString(),
+                            style: typos[Typos.T1_400]!.copyWith(
+                              color: const Color(0xff222B45),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ),
-                );
-              },
+                    );
+                  },
+                  selectedBuilder: (context, day, focusedDay) {
+                    return Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: pallete[Pallete.primary1],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 7,
+                          ),
+                          child: Text(
+                            day.day.toString(),
+                            style: typos[Typos.T1_400]!.copyWith(
+                              color: pallete[Pallete.white],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
+            Positioned(
+              bottom: 8,
+              left: 0,
+              right: 0,
+              child: GestureDetector(
+                onVerticalDragUpdate: (details) {
+                  if (details.delta.dy < 0) {
+                    direction = 'upward';
+                    return;
+                  }
+
+                  direction = 'downward';
+                },
+                onVerticalDragEnd: (details) {
+                  setState(() {
+                    switch (direction) {
+                      case 'upward':
+                        _format = CalendarFormat.week;
+                        break;
+                      case 'downward':
+                        _format = CalendarFormat.month;
+                        break;
+                    }
+                  });
+                },
+                child: Center(
+                  child: Container(
+                    width: 48,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: const Color(0xffCED3DE).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
         ),
       ],
     );
