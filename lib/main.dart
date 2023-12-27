@@ -1,5 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:progressive_overload/widgets/fitness_item.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
@@ -17,7 +18,12 @@ class MyApp extends StatelessWidget {
         body: SafeArea(
           child: Center(
             child: Column(
-              children: [],
+              children: [
+                FitnessItem(
+                  name: '데드리프트',
+                  totalSetCount: 4,
+                ),
+              ],
             ),
           ),
         ),

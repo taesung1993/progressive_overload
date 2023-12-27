@@ -23,8 +23,16 @@ class FitnessItem extends StatelessWidget {
         right: 8,
       ),
       decoration: BoxDecoration(
-        color: pallete[Pallete.lightGrey2],
+        color: pallete[Pallete.white],
         borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.08),
+            offset: Offset(1, 2),
+            blurRadius: 11,
+            spreadRadius: 0,
+          )
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,7 +61,7 @@ class FitnessItem extends StatelessWidget {
                 height: 20,
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
-                  color: pallete[Pallete.lightGrey2],
+                  color: pallete[Pallete.white],
                 ),
                 child: InkWell(
                   child: SvgPicture.asset(
