@@ -12,30 +12,25 @@ class AddButton extends StatelessWidget {
   });
 
   final double size;
-  final double iconSize;
-  final Pallete iconBackgroundColor;
+  final double? iconSize;
+  final Pallete? iconBackgroundColor;
   final void Function() onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Ink(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: pallete[iconBackgroundColor],
-        shape: BoxShape.circle,
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(1000.0),
-        onTap: () {},
-        child: Padding(
-          padding: EdgeInsets.all(iconSize * (19 / 18)),
-          child: SvgPicture.asset(
-            'assets/icons/plus.svg',
-            width: iconSize,
-            height: iconSize,
-          ),
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(size, size),
+        backgroundColor: pallete[iconBackgroundColor],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(9999),
         ),
+      ),
+      child: SvgPicture.asset(
+        'assets/icons/plus.svg',
+        width: iconSize,
+        height: iconSize,
       ),
     );
   }

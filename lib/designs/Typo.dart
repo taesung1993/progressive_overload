@@ -8,6 +8,7 @@ enum Typos {
   H3_600,
   H3_500,
   T1_500,
+  T1_600,
   T1_400,
   T2_500,
 }
@@ -40,15 +41,20 @@ final Map<Typos, TextStyle> typos = {
     fontWeight: FontWeight.w500,
     height: 1.5,
   ),
+  Typos.T1_400: defaultFont(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    height: 1.43,
+  ),
   Typos.T1_500: defaultFont(
     fontSize: 14,
     fontWeight: FontWeight.w500,
     height: 1.42,
   ),
-  Typos.T1_400: defaultFont(
+  Typos.T1_600: defaultFont(
     fontSize: 14,
-    fontWeight: FontWeight.w400,
-    height: 1.43,
+    fontWeight: FontWeight.w600,
+    height: 1.42,
   ),
   Typos.T2_500: defaultFont(
     fontSize: 12,

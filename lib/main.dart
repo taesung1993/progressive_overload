@@ -1,6 +1,8 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
-import 'package:progressive_overload/widgets/fitness_item.dart';
+import 'package:progressive_overload/widgets/gnb.dart';
+import 'package:progressive_overload/widgets/home_calendar.dart';
+import 'package:progressive_overload/widgets/no_fitness.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
@@ -16,17 +18,20 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       home: Scaffold(
         body: SafeArea(
-          child: Center(
-            child: Column(
-              children: [
-                FitnessItem(
-                  name: '데드리프트',
-                  totalSetCount: 4,
-                ),
-              ],
+          child: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  HomeCalendar(),
+                  NoFitness(),
+                ],
+              ),
             ),
           ),
         ),
+        bottomNavigationBar: GNB(),
       ),
     );
   }
