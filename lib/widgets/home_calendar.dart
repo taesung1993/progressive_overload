@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'dart:math' as math;
 
 class HomeCalendar extends StatefulWidget {
   const HomeCalendar({Key? key}) : super(key: key);
@@ -21,6 +21,8 @@ class _HomeCalendarState extends State<HomeCalendar>
   DateTime _now = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   String direction = '';
+  DateTime _firstDay = DateTime.utc(1900, 1, 1);
+  DateTime _lastDay = DateTime.utc(3000, 12, 31);
 
   @override
   void initState() {
@@ -41,6 +43,22 @@ class _HomeCalendarState extends State<HomeCalendar>
 
   get headerTitle {
     return '${_now.month}월, ${_now.year}';
+  }
+
+  void _openDatePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      builder: (context) {
+        return const DatePickerBottomSheet();
+      },
+    );
   }
 
   @override
@@ -69,18 +87,7 @@ class _HomeCalendarState extends State<HomeCalendar>
                 height: 20,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(1000.0),
-                  onTap: () {
-                    setState(() {
-                      if (_format == CalendarFormat.week) {
-                        _format = CalendarFormat.month;
-                        _animationController.forward(from: 0.0);
-                        return;
-                      }
-
-                      _animationController.reverse(from: 0.5);
-                      _format = CalendarFormat.week;
-                    });
-                  },
+                  onTap: () => _openDatePicker(context),
                   child: RotationTransition(
                     turns: Tween(begin: 0.0, end: 1.0)
                         .animate(_animationController),
@@ -106,8 +113,8 @@ class _HomeCalendarState extends State<HomeCalendar>
                 right: 31,
               ),
               child: TableCalendar(
-                firstDay: DateTime.utc(2010, 10, 16),
-                lastDay: DateTime.utc(2030, 3, 14),
+                firstDay: _firstDay,
+                lastDay: _lastDay,
                 focusedDay: _now,
                 calendarFormat: _format,
                 daysOfWeekHeight: 18,
@@ -165,7 +172,9 @@ class _HomeCalendarState extends State<HomeCalendar>
                           borderRadius: BorderRadius.circular(10),
                           color: pallete[Pallete.primary1],
                         ),
-                        child: Padding(
+                        child: Container(
+                          width: 30,
+                          height: 30,
                           padding: const EdgeInsets.symmetric(
                             vertical: 5,
                             horizontal: 7,
