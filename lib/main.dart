@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   void _openCreatingWorkoutBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(32),
