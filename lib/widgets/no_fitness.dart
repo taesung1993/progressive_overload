@@ -3,7 +3,12 @@ import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 
 class NoFitness extends StatelessWidget {
-  const NoFitness({super.key});
+  const NoFitness({
+    super.key,
+    required this.createWorkout,
+  });
+
+  final void Function(BuildContext context) createWorkout;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,7 @@ class NoFitness extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(28),
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () => createWorkout(context),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
               backgroundColor: pallete[Pallete.primary1],

@@ -3,7 +3,12 @@ import 'package:progressive_overload/widgets/home_calendar.dart';
 import 'package:progressive_overload/widgets/no_fitness.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    required this.createWorkout,
+  });
+
+  final void Function(BuildContext context) createWorkout;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +20,9 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             HomeCalendar(),
-            NoFitness(),
+            NoFitness(
+              createWorkout: createWorkout,
+            ),
           ],
         ),
       ),
