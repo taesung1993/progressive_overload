@@ -62,8 +62,15 @@ class TrainingSetItem extends StatelessWidget {
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           width: 1,
-                          color: pallete[Pallete.lightGrey]!,
+                          color: pallete[Pallete.grey]!,
                         ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 1,
+                          color: pallete[Pallete.primary1]!,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
                   ),
@@ -97,8 +104,15 @@ class TrainingSetItem extends StatelessWidget {
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           width: 1,
-                          color: pallete[Pallete.lightGrey]!,
+                          color: pallete[Pallete.grey]!,
                         ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 1,
+                          color: pallete[Pallete.primary1]!,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
                   ),
