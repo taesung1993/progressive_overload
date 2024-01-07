@@ -1,8 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:progressive_overload/screens/home_screen.dart';
 import 'package:progressive_overload/widgets/gnb.dart';
-import 'package:progressive_overload/widgets/home_calendar.dart';
-import 'package:progressive_overload/widgets/no_fitness.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
@@ -18,18 +17,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       home: Scaffold(
         body: SafeArea(
-          child: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  HomeCalendar(),
-                  NoFitness(),
-                ],
-              ),
-            ),
-          ),
+          child: HomeScreen(),
         ),
         bottomNavigationBar: GNB(),
       ),
