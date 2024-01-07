@@ -21,12 +21,14 @@ class _HomeCalendarState extends State<HomeCalendar>
   DateTime _now = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   String direction = '';
-  DateTime _firstDay = DateTime.utc(1900, 1, 1);
-  DateTime _lastDay = DateTime.utc(3000, 12, 31);
+  late DateTime _firstDay;
+  late DateTime _lastDay;
 
   @override
   void initState() {
     super.initState();
+    _firstDay = DateTime.utc(_now.year - 50, 1, 1);
+    _lastDay = DateTime.utc(_now.year + 50, 12, 31);
 
     _animationController = AnimationController(
       vsync: this,
@@ -46,6 +48,8 @@ class _HomeCalendarState extends State<HomeCalendar>
   }
 
   void _openDatePicker(BuildContext context) {
+    _animationController.forward(from: 0.0);
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -56,9 +60,18 @@ class _HomeCalendarState extends State<HomeCalendar>
       ),
       clipBehavior: Clip.hardEdge,
       builder: (context) {
-        return const DatePickerBottomSheet();
+        return DatePickerBottomSheet(
+          now: _now,
+        );
       },
-    );
+    ).then((value) {
+      if (value.runtimeType == DateTime) {
+        setState(() {
+          _now = value;
+        });
+      }
+      _animationController.reverse(from: 0.5);
+    });
   }
 
   @override
@@ -211,11 +224,9 @@ class _HomeCalendarState extends State<HomeCalendar>
                     switch (direction) {
                       case 'upward':
                         _format = CalendarFormat.week;
-                        _animationController.reverse(from: 0.5);
                         break;
                       case 'downward':
                         _format = CalendarFormat.month;
-                        _animationController.forward(from: 0.0);
                         break;
                     }
                   });
