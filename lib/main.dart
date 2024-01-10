@@ -1,12 +1,15 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:progressive_overload/screens/home_screen.dart';
 import 'package:progressive_overload/widgets/creating_workout_bottom_sheet.dart';
 import 'package:progressive_overload/widgets/gnb.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(child: MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
