@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:progressive_overload/widgets/training_set_item.dart';
 
 class CreatingWorkoutBottomSheet extends StatefulWidget {
-  const CreatingWorkoutBottomSheet({super.key});
+  const CreatingWorkoutBottomSheet({
+    super.key,
+    required this.now,
+  });
+
+  final DateTime now;
 
   @override
   State<StatefulWidget> createState() {
@@ -13,7 +20,51 @@ class CreatingWorkoutBottomSheet extends StatefulWidget {
   }
 }
 
-class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet> {
+class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
+    with SingleTickerProviderStateMixin {
+  late DateTime workedoutAt;
+  late AnimationController _animationController;
+
+  void _openDatePicker() {
+    _animationController.forward(from: 0.0);
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      builder: (context) {
+        return DatePickerBottomSheet(
+          now: workedoutAt,
+          datePickerFormat: DatePickerFormat.YYYYMMDD,
+        );
+      },
+    ).then((value) {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    workedoutAt = widget.now;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+      upperBound: 0.5,
+    );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _animationController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -72,12 +123,12 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      '2023.09.23',
+                      DateFormat('yyyy.MM.dd').format(workedoutAt),
                       style: typos[Typos.H3_500]!
                           .copyWith(color: pallete[Pallete.black]),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: _openDatePicker,
                       splashColor: Colors.transparent,
                       highlightColor: Colors.transparent,
                       icon: SvgPicture.asset(

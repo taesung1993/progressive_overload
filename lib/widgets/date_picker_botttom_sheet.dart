@@ -4,13 +4,17 @@ import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+enum DatePickerFormat { YYYYMM, YYYYMMDD }
+
 class DatePickerBottomSheet extends StatefulWidget {
   const DatePickerBottomSheet({
     super.key,
     required this.now,
+    this.datePickerFormat = DatePickerFormat.YYYYMM,
   });
 
   final DateTime now;
+  final DatePickerFormat? datePickerFormat;
 
   @override
   State<DatePickerBottomSheet> createState() => _DatePickerBottomSheetState();
@@ -19,9 +23,11 @@ class DatePickerBottomSheet extends StatefulWidget {
 class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
   late FixedExtentScrollController _yearController;
   late FixedExtentScrollController _monthController;
+  late FixedExtentScrollController _dayController;
 
   late int _selectedYear;
   late int _selectedMonth;
+  late int _selectedDay;
 
   @override
   void initState() {
@@ -29,12 +35,14 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
 
     _selectedYear = widget.now.year;
     _selectedMonth = widget.now.month;
+    _selectedDay = widget.now.day;
 
     _yearController = FixedExtentScrollController(
       initialItem: _selectedYear - widget.now.year + 50,
     );
     _monthController =
         FixedExtentScrollController(initialItem: _selectedMonth - 1);
+    _dayController = FixedExtentScrollController(initialItem: _selectedDay - 1);
   }
 
   @override
@@ -62,7 +70,7 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
               final DateTime output = DateTime.utc(
                 _selectedYear,
                 _selectedMonth,
-                widget.now.day,
+                _selectedDay,
               );
 
               Navigator.of(context).pop(output);
@@ -78,8 +86,132 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
     );
   }
 
+  Widget _YearSelector() {
+    return ListWheelScrollView.useDelegate(
+      controller: _yearController,
+      physics: const FixedExtentScrollPhysics(),
+      itemExtent: 36,
+      diameterRatio: 1.2,
+      magnification: 1,
+      squeeze: 1.0,
+      useMagnifier: true,
+      onSelectedItemChanged: (value) {
+        setState(() {
+          _selectedYear = widget.now.year + value - 50;
+        });
+      },
+      childDelegate: ListWheelChildBuilderDelegate(
+        childCount: 100,
+        builder: (context, index) {
+          final element = widget.now.year - 50 + index;
+          return SizedBox(
+            child: Center(
+              child: Text(
+                '$element년',
+                style: GoogleFonts.roboto(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w400,
+                  height: 1.18,
+                  color: _selectedYear == element
+                      ? pallete[Pallete.black]
+                      : pallete[Pallete.grey],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _MonthSelector() {
+    return ListWheelScrollView.useDelegate(
+      controller: _monthController,
+      physics: const FixedExtentScrollPhysics(),
+      itemExtent: 36,
+      diameterRatio: 1.2,
+      magnification: 1,
+      squeeze: 1.0,
+      useMagnifier: true,
+      onSelectedItemChanged: (value) {
+        setState(() {
+          _selectedMonth = value + 1;
+        });
+      },
+      childDelegate: ListWheelChildBuilderDelegate(
+        childCount: 12,
+        builder: (context, index) {
+          int element = index + 1;
+
+          return SizedBox(
+            child: Center(
+              child: Text(
+                '$element월',
+                style: GoogleFonts.roboto(
+                    fontSize: _selectedMonth == element ? 22 : 20,
+                    fontWeight: _selectedMonth == element
+                        ? FontWeight.w400
+                        : FontWeight.w500,
+                    height: _selectedMonth == element ? 1.18 : 1.3,
+                    color: _selectedMonth == element
+                        ? pallete[Pallete.black]
+                        : pallete[Pallete.grey]),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _DaySelector() {
+    return ListWheelScrollView.useDelegate(
+      controller: _dayController,
+      physics: const FixedExtentScrollPhysics(),
+      itemExtent: 36,
+      diameterRatio: 1.2,
+      magnification: 1,
+      squeeze: 1.0,
+      useMagnifier: true,
+      onSelectedItemChanged: (value) {
+        setState(() {
+          _selectedDay = value + 1;
+        });
+      },
+      childDelegate: ListWheelChildBuilderDelegate(
+        childCount: DateTime(_selectedYear, _selectedMonth, 0).day,
+        builder: (context, index) {
+          int element = index + 1;
+
+          return SizedBox(
+            child: Center(
+              child: Text(
+                '$element일',
+                style: GoogleFonts.roboto(
+                    fontSize: _selectedDay == element ? 22 : 20,
+                    fontWeight: _selectedDay == element
+                        ? FontWeight.w400
+                        : FontWeight.w500,
+                    height: _selectedDay == element ? 1.18 : 1.3,
+                    color: _selectedDay == element
+                        ? pallete[Pallete.black]
+                        : pallete[Pallete.grey]),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> pickers = [_YearSelector(), _MonthSelector()];
+
+    if (widget.datePickerFormat == DatePickerFormat.YYYYMMDD) {
+      pickers.add(_DaySelector());
+    }
+
     return Stack(
       children: [
         Container(
@@ -126,89 +258,9 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: ListWheelScrollView.useDelegate(
-                              controller: _yearController,
-                              physics: const FixedExtentScrollPhysics(),
-                              itemExtent: 36,
-                              diameterRatio: 1.2,
-                              magnification: 1,
-                              squeeze: 1.0,
-                              useMagnifier: true,
-                              onSelectedItemChanged: (value) {
-                                setState(() {
-                                  _selectedYear = widget.now.year + value - 50;
-                                });
-                              },
-                              childDelegate: ListWheelChildBuilderDelegate(
-                                childCount: 60,
-                                builder: (context, index) {
-                                  final element = widget.now.year - 50 + index;
-                                  return SizedBox(
-                                    child: Center(
-                                      child: Text(
-                                        '$element년',
-                                        style: GoogleFonts.roboto(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.18,
-                                          color: _selectedYear == element
-                                              ? pallete[Pallete.black]
-                                              : pallete[Pallete.grey],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: ListWheelScrollView.useDelegate(
-                              controller: _monthController,
-                              physics: const FixedExtentScrollPhysics(),
-                              itemExtent: 36,
-                              diameterRatio: 1.2,
-                              magnification: 1,
-                              squeeze: 1.0,
-                              useMagnifier: true,
-                              onSelectedItemChanged: (value) {
-                                setState(() {
-                                  _selectedMonth = value + 1;
-                                });
-                              },
-                              childDelegate: ListWheelChildBuilderDelegate(
-                                childCount: 12,
-                                builder: (context, index) {
-                                  int element = index + 1;
-
-                                  return SizedBox(
-                                    child: Center(
-                                      child: Text(
-                                        '$element월',
-                                        style: GoogleFonts.roboto(
-                                            fontSize: _selectedMonth == element
-                                                ? 22
-                                                : 20,
-                                            fontWeight:
-                                                _selectedMonth == element
-                                                    ? FontWeight.w400
-                                                    : FontWeight.w500,
-                                            height: _selectedMonth == element
-                                                ? 1.18
-                                                : 1.3,
-                                            color: _selectedMonth == element
-                                                ? pallete[Pallete.black]
-                                                : pallete[Pallete.grey]),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
+                        children: pickers
+                            .map((picker) => Expanded(child: picker))
+                            .toList(),
                       ),
                     ],
                   ),
