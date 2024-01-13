@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:progressive_overload/classes/training_set_item_props.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
@@ -25,26 +26,11 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
   late DateTime workedoutAt;
   late AnimationController _animationController;
 
-  void _openDatePicker() {
-    _animationController.forward(from: 0.0);
+  final List<TrainingSetItemProps> _trainingSetItems = [
+    TrainingSetItemProps(),
+  ];
 
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(32),
-        ),
-      ),
-      clipBehavior: Clip.hardEdge,
-      builder: (context) {
-        return DatePickerBottomSheet(
-          now: workedoutAt,
-          datePickerFormat: DatePickerFormat.YYYYMMDD,
-        );
-      },
-    ).then((value) {});
-  }
+  String _workname = '';
 
   @override
   void initState() {
@@ -65,6 +51,226 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
     _animationController.dispose();
   }
 
+  void _openDatePicker() {
+    _animationController.forward(from: 0.0);
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      builder: (context) {
+        return DatePickerBottomSheet(
+          now: workedoutAt,
+          datePickerFormat: DatePickerFormat.YYYYMMDD,
+        );
+      },
+    ).then((value) {
+      if (value.runtimeType == DateTime) {
+        setState(() {
+          workedoutAt = value;
+        });
+      }
+    });
+  }
+
+  Widget _Title() {
+    return Text(
+      '운동 기록하기',
+      style: typos[Typos.H1_700]!.copyWith(
+        color: pallete[Pallete.black],
+      ),
+    );
+  }
+
+  Widget _RecentRecords() {
+    return Container(
+      alignment: Alignment.centerRight,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          backgroundColor: const Color(0xff3D3D3D),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+        child: Text(
+          '최근 기록',
+          style: typos[Typos.T1_500]!.copyWith(
+            color: pallete[Pallete.white],
+          ),
+        ),
+        onPressed: () {},
+      ),
+    );
+  }
+
+  Widget _WorkedoutAtFormControl() {
+    return Container(
+      width: double.infinity,
+      height: 48,
+      padding: const EdgeInsets.only(left: 12, right: 0),
+      decoration: BoxDecoration(
+        color: pallete[Pallete.white],
+        border: Border.all(
+          width: 1,
+          color: pallete[Pallete.grey]!,
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            DateFormat('yyyy.MM.dd').format(workedoutAt),
+            style: typos[Typos.H3_500]!.copyWith(color: pallete[Pallete.black]),
+          ),
+          IconButton(
+            onPressed: _openDatePicker,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            icon: SvgPicture.asset(
+              'assets/icons/date_picker.svg',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onChangeWorkoutName(String value) {
+    setState(() {
+      _workname = value;
+    });
+  }
+
+  Widget _WorkoutNameFormControl() {
+    return TextField(
+      keyboardType: TextInputType.text,
+      onChanged: _onChangeWorkoutName,
+      style: typos[Typos.H3_500]!.copyWith(
+        color: pallete[Pallete.black],
+      ),
+      decoration: InputDecoration(
+        isDense: true,
+        filled: true,
+        fillColor: pallete[Pallete.white],
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 12.0,
+        ),
+        hintText: '운동 이름을 입력하세요',
+        hintStyle: typos[Typos.T1_400]!.copyWith(
+          color: const Color(0xffD5D5D5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: pallete[Pallete.grey]!,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: pallete[Pallete.primary1]!,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+    );
+  }
+
+  Widget _AddTrainingSet() {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _trainingSetItems.add(
+            TrainingSetItemProps(),
+          );
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        backgroundColor: pallete[Pallete.black],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(7.0),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            'assets/icons/add_set.svg',
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '세트 추가',
+            style: typos[Typos.H3_600]!
+                .copyWith(color: pallete[Pallete.white], height: 1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  get isValid {
+    return _workname.isNotEmpty &&
+        _trainingSetItems
+            .every((item) => item.count.isNotEmpty && item.weight.isNotEmpty);
+  }
+
+  Widget _SubmitButton() {
+    return ElevatedButton(
+      onPressed: () {
+        print(isValid);
+      },
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        backgroundColor:
+            isValid ? pallete[Pallete.primary1] : pallete[Pallete.grey],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(7.0),
+        ),
+      ),
+      child: Center(
+        child: Text(
+          '등록하기',
+          style: typos[Typos.H3_600]!
+              .copyWith(color: pallete[Pallete.white], height: 1),
+        ),
+      ),
+    );
+  }
+
+  void Function(String value) _onChangeWorkoutCount(int index) {
+    return (String value) {
+      setState(() {
+        _trainingSetItems[index].count = value;
+      });
+    };
+  }
+
+  void Function(String value) _onChangeWorkoutWeight(int index) {
+    return (String value) {
+      setState(() {
+        _trainingSetItems[index].weight = value;
+      });
+    };
+  }
+
+  void _onDeleteTrainingSetItem(int index) {
+    setState(() {
+      _trainingSetItems.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -79,134 +285,39 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
           ),
           child: Column(
             children: [
-              Text(
-                '운동 기록하기',
-                style: typos[Typos.H1_700]!.copyWith(
-                  color: pallete[Pallete.black],
-                ),
-              ),
-              Container(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    backgroundColor: const Color(0xff3D3D3D),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: Text(
-                    '최근 기록',
-                    style: typos[Typos.T1_500]!.copyWith(
-                      color: pallete[Pallete.white],
-                    ),
-                  ),
-                  onPressed: () {},
-                ),
-              ),
+              _Title(),
+              _RecentRecords(),
               const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                height: 48,
-                padding: const EdgeInsets.only(left: 12, right: 0),
-                decoration: BoxDecoration(
-                  color: pallete[Pallete.white],
-                  border: Border.all(
-                    width: 1,
-                    color: pallete[Pallete.grey]!,
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      DateFormat('yyyy.MM.dd').format(workedoutAt),
-                      style: typos[Typos.H3_500]!
-                          .copyWith(color: pallete[Pallete.black]),
-                    ),
-                    IconButton(
-                      onPressed: _openDatePicker,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      icon: SvgPicture.asset(
-                        'assets/icons/date_picker.svg',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _WorkedoutAtFormControl(),
               const SizedBox(height: 16),
-              TextField(
-                keyboardType: TextInputType.text,
-                style: typos[Typos.H3_500]!.copyWith(
-                  color: pallete[Pallete.black],
-                ),
-                decoration: InputDecoration(
-                  isDense: true,
-                  filled: true,
-                  fillColor: pallete[Pallete.white],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 12.0,
-                  ),
-                  hintText: '운동 이름을 입력하세요',
-                  hintStyle: typos[Typos.T1_400]!.copyWith(
-                    color: const Color(0xffD5D5D5),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 1,
-                      color: pallete[Pallete.grey]!,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 1,
-                      color: pallete[Pallete.primary1]!,
-                    ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-              ),
+              _WorkoutNameFormControl(),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  backgroundColor: pallete[Pallete.black],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(7.0),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/add_set.svg',
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '세트 추가',
-                      style: typos[Typos.H3_600]!
-                          .copyWith(color: pallete[Pallete.white], height: 1),
-                    ),
-                  ],
-                ),
-              ),
+              _AddTrainingSet(),
               const SizedBox(
                 height: 16,
               ),
-              const Expanded(
+              Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      TrainingSetItem(),
+                      for (var index = 0;
+                          index < _trainingSetItems.length;
+                          index++)
+                        Column(
+                          children: [
+                            TrainingSetItem(
+                              setNumber: index + 1,
+                              onChangeWorkoutCount:
+                                  _onChangeWorkoutCount(index),
+                              onChangeWorkoutWeight:
+                                  _onChangeWorkoutWeight(index),
+                              onDeleteTrainingSetItem: () =>
+                                  _onDeleteTrainingSetItem(index),
+                            ),
+                            if (index != _trainingSetItems.length - 1)
+                              const SizedBox(height: 10),
+                          ],
+                        )
                     ],
                   ),
                 ),
@@ -214,24 +325,7 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
               const SizedBox(
                 height: 16,
               ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  backgroundColor: pallete[Pallete.primary1],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(7.0),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    '등록하기',
-                    style: typos[Typos.H3_600]!
-                        .copyWith(color: pallete[Pallete.white], height: 1),
-                  ),
-                ),
-              )
+              _SubmitButton(),
             ],
           ),
         ),

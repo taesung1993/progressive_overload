@@ -4,7 +4,18 @@ import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 
 class TrainingSetItem extends StatelessWidget {
-  const TrainingSetItem({Key? key}) : super(key: key);
+  const TrainingSetItem({
+    super.key,
+    required this.setNumber,
+    required this.onChangeWorkoutCount,
+    required this.onChangeWorkoutWeight,
+    required this.onDeleteTrainingSetItem,
+  });
+
+  final int setNumber;
+  final void Function(String value) onChangeWorkoutCount;
+  final void Function(String value) onChangeWorkoutWeight;
+  final void Function() onDeleteTrainingSetItem;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +46,7 @@ class TrainingSetItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6.0),
               ),
               child: Text(
-                '1 세트',
+                '$setNumber 세트',
                 style: typos[Typos.T2_500]!.copyWith(
                   color: pallete[Pallete.white],
                 ),
@@ -48,6 +59,7 @@ class TrainingSetItem extends StatelessWidget {
                   height: 28,
                   child: TextField(
                     keyboardType: TextInputType.number,
+                    onChanged: onChangeWorkoutWeight,
                     textAlign: TextAlign.center,
                     style: typos[Typos.T2_500]!.copyWith(
                       color: pallete[Pallete.black],
@@ -90,6 +102,7 @@ class TrainingSetItem extends StatelessWidget {
                   height: 28,
                   child: TextField(
                     keyboardType: TextInputType.number,
+                    onChanged: onChangeWorkoutCount,
                     textAlign: TextAlign.center,
                     style: typos[Typos.T2_500]!.copyWith(
                       color: pallete[Pallete.black],
@@ -133,6 +146,7 @@ class TrainingSetItem extends StatelessWidget {
                 color: pallete[Pallete.lightGrey2],
               ),
               child: InkWell(
+                onTap: setNumber == 1 ? null : onDeleteTrainingSetItem,
                 child: SvgPicture.asset(
                   'assets/icons/trash.svg',
                   width: 16,
