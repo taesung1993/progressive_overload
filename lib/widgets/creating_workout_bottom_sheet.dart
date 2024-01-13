@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import 'package:progressive_overload/classes/training_set_item_props.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/models/training_set_item_model.dart';
+import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:progressive_overload/widgets/training_set_item.dart';
+import 'package:sqflite/sqflite.dart';
 
-class CreatingWorkoutBottomSheet extends StatefulWidget {
+class CreatingWorkoutBottomSheet extends ConsumerStatefulWidget {
   const CreatingWorkoutBottomSheet({
     super.key,
     required this.now,
@@ -16,18 +19,19 @@ class CreatingWorkoutBottomSheet extends StatefulWidget {
   final DateTime now;
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<ConsumerStatefulWidget> createState() {
     return _CreatingWorkoutBottomSheet();
   }
 }
 
-class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
+class _CreatingWorkoutBottomSheet
+    extends ConsumerState<CreatingWorkoutBottomSheet>
     with SingleTickerProviderStateMixin {
-  late DateTime workedoutAt;
+  late DateTime _workedoutAt;
   late AnimationController _animationController;
 
-  final List<TrainingSetItemProps> _trainingSetItems = [
-    TrainingSetItemProps(),
+  final List<TrainingSetItemModel> _trainingSetItems = [
+    TrainingSetItemModel(),
   ];
 
   String _workname = '';
@@ -36,7 +40,7 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
   void initState() {
     // TODO: implement initState
     super.initState();
-    workedoutAt = widget.now;
+    _workedoutAt = widget.now;
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -65,14 +69,14 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
       clipBehavior: Clip.hardEdge,
       builder: (context) {
         return DatePickerBottomSheet(
-          now: workedoutAt,
+          now: _workedoutAt,
           datePickerFormat: DatePickerFormat.YYYYMMDD,
         );
       },
     ).then((value) {
       if (value.runtimeType == DateTime) {
         setState(() {
-          workedoutAt = value;
+          _workedoutAt = value;
         });
       }
     });
@@ -127,7 +131,7 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            DateFormat('yyyy.MM.dd').format(workedoutAt),
+            DateFormat('yyyy.MM.dd').format(_workedoutAt),
             style: typos[Typos.H3_500]!.copyWith(color: pallete[Pallete.black]),
           ),
           IconButton(
@@ -191,7 +195,7 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
       onPressed: () {
         setState(() {
           _trainingSetItems.add(
-            TrainingSetItemProps(),
+            TrainingSetItemModel(),
           );
         });
       },
@@ -226,11 +230,15 @@ class _CreatingWorkoutBottomSheet extends State<CreatingWorkoutBottomSheet>
             .every((item) => item.count.isNotEmpty && item.weight.isNotEmpty);
   }
 
+  Future<void> _onSubmit() async {
+    // _workname;
+    // _workedoutAt;
+    ref.read(workoutProvider.notifier).addWorkout();
+  }
+
   Widget _SubmitButton() {
     return ElevatedButton(
-      onPressed: () {
-        print(isValid);
-      },
+      onPressed: isValid ? _onSubmit : null,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         backgroundColor:
