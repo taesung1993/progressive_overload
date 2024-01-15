@@ -1,4 +1,4 @@
-import 'package:progressive_overload/models/workout_item.dart';
+import 'package:progressive_overload/models/workout_item_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -39,7 +39,7 @@ class SQLiteService {
     return database;
   }
 
-  Future<int> insertWorkoutItem(WorkoutItem item) async {
+  Future<int> insertWorkoutItem(WorkoutItemModel item) async {
     final db = await init();
 
     return await db.insert(

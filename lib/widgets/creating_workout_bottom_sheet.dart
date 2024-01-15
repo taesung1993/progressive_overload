@@ -5,11 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 import 'package:progressive_overload/models/training_set_item_model.dart';
-import 'package:progressive_overload/models/workout_item.dart';
+import 'package:progressive_overload/models/workout_item_model.dart';
 import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:progressive_overload/widgets/training_set_item.dart';
-import 'package:sqflite/sqflite.dart';
 
 class CreatingWorkoutBottomSheet extends ConsumerStatefulWidget {
   const CreatingWorkoutBottomSheet({
@@ -247,7 +246,7 @@ class _CreatingWorkoutBottomSheet
           : _trainingSetItems[i].weight;
     }
 
-    final WorkoutItem newWorkoutItem = WorkoutItem(
+    final WorkoutItemModel newWorkoutItem = WorkoutItemModel(
       name: _workname,
       maxWeightInTrainingSet: _maxWeight,
       maxCountInTrainingSet: _maxCount,

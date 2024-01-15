@@ -1,7 +1,7 @@
 import 'package:progressive_overload/widgets/training_set_item.dart';
 
-class WorkoutItem {
-  WorkoutItem({
+class WorkoutItemModel {
+  WorkoutItemModel({
     required this.name,
     required this.maxWeightInTrainingSet,
     required this.maxCountInTrainingSet,
