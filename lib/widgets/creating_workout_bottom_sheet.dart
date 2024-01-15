@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 import 'package:progressive_overload/models/training_set_item_model.dart';
+import 'package:progressive_overload/models/workout_item.dart';
 import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:progressive_overload/widgets/training_set_item.dart';
@@ -226,14 +227,34 @@ class _CreatingWorkoutBottomSheet
 
   get isValid {
     return _workname.isNotEmpty &&
-        _trainingSetItems
-            .every((item) => item.count.isNotEmpty && item.weight.isNotEmpty);
+        _trainingSetItems.every(
+          (item) =>
+              item.enteredCount.isNotEmpty && item.enteredWeight.isNotEmpty,
+        );
   }
 
   Future<void> _onSubmit() async {
-    // _workname;
-    // _workedoutAt;
-    ref.read(workoutProvider.notifier).addWorkout();
+    int _maxCount = 0;
+    double _maxWeight = 0.0;
+
+    for (int i = 0; i < _trainingSetItems.length; i++) {
+      _maxCount = _maxCount >= _trainingSetItems[i].count
+          ? _maxCount
+          : _trainingSetItems[i].count;
+
+      _maxWeight = _maxWeight >= _trainingSetItems[i].weight
+          ? _maxWeight
+          : _trainingSetItems[i].weight;
+    }
+
+    final WorkoutItem newWorkoutItem = WorkoutItem(
+      name: _workname,
+      maxWeightInTrainingSet: _maxWeight,
+      maxCountInTrainingSet: _maxCount,
+      workedoutAt: _workedoutAt.microsecondsSinceEpoch,
+    );
+
+    ref.read(workoutProvider.notifier).addWorkout(newWorkoutItem);
   }
 
   Widget _SubmitButton() {
@@ -260,7 +281,7 @@ class _CreatingWorkoutBottomSheet
   void Function(String value) _onChangeWorkoutCount(int index) {
     return (String value) {
       setState(() {
-        _trainingSetItems[index].count = value;
+        _trainingSetItems[index].enteredCount = value;
       });
     };
   }
@@ -268,7 +289,7 @@ class _CreatingWorkoutBottomSheet
   void Function(String value) _onChangeWorkoutWeight(int index) {
     return (String value) {
       setState(() {
-        _trainingSetItems[index].weight = value;
+        _trainingSetItems[index].enteredWeight = value;
       });
     };
   }

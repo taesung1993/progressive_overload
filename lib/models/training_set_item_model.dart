@@ -1,9 +1,19 @@
+import 'dart:ffi';
+
 class TrainingSetItemModel {
   TrainingSetItemModel({
-    this.weight = '',
-    this.count = '',
+    this.enteredWeight = '',
+    this.enteredCount = '',
   });
 
-  String weight;
-  String count;
+  String enteredWeight;
+  String enteredCount;
+
+  double get weight {
+    return double.parse(enteredWeight);
+  }
+
+  int get count {
+    return int.parse(enteredCount);
+  }
 }
