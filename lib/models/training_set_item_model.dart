@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class TrainingSetItemModel {
   TrainingSetItemModel({
     this.enteredWeight = '',
@@ -15,5 +13,15 @@ class TrainingSetItemModel {
 
   int get count {
     return int.parse(enteredCount);
+  }
+
+  Map<String, dynamic> toMap(int workoutId, int sequence, int workedoutAt) {
+    return {
+      'sequence': sequence,
+      'weight': weight,
+      'count': count,
+      'workedoutAt': workedoutAt,
+      'workout_list_id': workoutId,
+    };
   }
 }

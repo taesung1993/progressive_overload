@@ -253,7 +253,8 @@ class _CreatingWorkoutBottomSheet
       workedoutAt: _workedoutAt.microsecondsSinceEpoch,
     );
 
-    ref.read(workoutProvider.notifier).addWorkout(newWorkoutItem);
+    ref.read(workoutProvider.notifier).addWorkout(
+        newWorkoutItem, _trainingSetItems, _workedoutAt.microsecondsSinceEpoch);
   }
 
   Widget _SubmitButton() {

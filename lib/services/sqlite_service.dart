@@ -1,3 +1,4 @@
+import 'package:progressive_overload/models/training_set_item_model.dart';
 import 'package:progressive_overload/models/workout_item_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -52,6 +53,33 @@ class SQLiteService {
   Future<List<Map<String, dynamic>>> getWorkoutList() async {
     final db = await init();
     final list = await db.query('workout_list');
+
+    return list;
+  }
+
+  Future<void> insertTrainingSet(
+      int workoutId, int workedoutAt, List<TrainingSetItemModel> set) async {
+    final db = await init();
+    final Batch batch = db.batch();
+
+    for (int index = 0; index < set.length; index++) {
+      final TrainingSetItemModel item = set[index];
+      batch.insert(
+        'training_set',
+        item.toMap(
+          workoutId,
+          index + 1,
+          workedoutAt,
+        ),
+      );
+    }
+
+    await batch.commit();
+  }
+
+  Future<List<Map<String, dynamic>>> getTrainingSet() async {
+    final db = await init();
+    final list = await db.query('training_set');
 
     return list;
   }
