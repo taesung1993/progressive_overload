@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class HomeCalendar extends StatefulWidget {
+class HomeCalendar extends ConsumerStatefulWidget {
   const HomeCalendar({Key? key}) : super(key: key);
 
   @override
-  _HomeCalendarState createState() => _HomeCalendarState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomeCalendarState();
 }
 
-class _HomeCalendarState extends State<HomeCalendar>
+class _HomeCalendarState extends ConsumerState<HomeCalendar>
     with SingleTickerProviderStateMixin {
   final List<String> days = ['_', '월', '화', '수', '목', '금', '토', '일'];
   late AnimationController _animationController;
@@ -35,6 +37,12 @@ class _HomeCalendarState extends State<HomeCalendar>
       duration: const Duration(milliseconds: 150),
       upperBound: 0.5,
     );
+
+    print(_now);
+
+    ref.read(workoutProvider.notifier).loadWorkoutListInMonth(
+        DateTime(_now.year, _now.month, 1),
+        DateTime(_now.year, _now.month + 1, 0));
   }
 
   @override

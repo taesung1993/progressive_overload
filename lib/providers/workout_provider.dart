@@ -14,12 +14,16 @@ class WorkoutNotifier extends StateNotifier<Map<String, dynamic>> {
       List<TrainingSetItemModel> trainingSet, int workedoutAt) async {
     final workoutId = await _sqlite.insertWorkoutItem(newWorkout);
     await _sqlite.insertTrainingSet(workoutId, workedoutAt, trainingSet);
+  }
 
-    final newWorkoutList = await _sqlite.getWorkoutList();
-    final newTrainingSet = await _sqlite.getTrainingSet();
-
-    print(newWorkoutList);
-    print(newTrainingSet);
+  Future<void> loadWorkoutListInMonth(
+      DateTime firstDay, DateTime lastDay) async {
+    final List<int> durations = [
+      firstDay.microsecondsSinceEpoch,
+      lastDay.microsecondsSinceEpoch
+    ];
+    final list = await _sqlite.getWorkoutList(durations: durations);
+    print(list);
   }
 }
 

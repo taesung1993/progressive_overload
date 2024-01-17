@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            HomeCalendar(),
+            const HomeCalendar(),
             NoFitness(
               createWorkout: createWorkout,
             ),
