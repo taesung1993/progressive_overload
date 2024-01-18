@@ -237,7 +237,7 @@ class _CreatingFitnessBottomSheet
     );
   }
 
-  Future<void> _onSubmit() async {
+  Future<void> _onSubmit(BuildContext context) async {
     int maxCount = 0;
     double maxWeight = 0.0;
 
@@ -248,18 +248,21 @@ class _CreatingFitnessBottomSheet
           max(maxWeight, double.parse(_trainingSetItems[i]["enteredWeight"]!));
     }
 
-    ref.read(fitnessProvider.notifier).addFitness(
+    await ref.read(fitnessProvider.notifier).addFitness(
           name: _workname,
           maxCount: maxCount,
           maxWeight: maxWeight,
           fitnessDate: _fitnessDate.millisecondsSinceEpoch,
           trainingSet: _trainingSetItems,
         );
+
+    if (!mounted) return;
+    Navigator.of(context).pop(true);
   }
 
-  Widget _SubmitButton() {
+  Widget _SubmitButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: isValid ? _onSubmit : null,
+      onPressed: isValid ? () => _onSubmit(context) : null,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         backgroundColor:
@@ -354,7 +357,7 @@ class _CreatingFitnessBottomSheet
               const SizedBox(
                 height: 16,
               ),
-              _SubmitButton(),
+              _SubmitButton(context),
             ],
           ),
         ),

@@ -20,12 +20,12 @@ class FitnessNotifier extends StateNotifier<List<Fitness>> {
       maxWeight: maxWeight,
       fitnessDate: fitnessDate,
     );
+
     await _sqlite.insertTrainingSet(fitnessId, trainingSet);
   }
 
   Future<void> loadFitnessList() async {
     List<Fitness> fitnessList = await _sqlite.getFitnessList();
-
     state = fitnessList;
   }
 }

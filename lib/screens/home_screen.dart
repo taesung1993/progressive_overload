@@ -37,17 +37,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: FutureBuilder(
         future: _fitnessListFuture,
         builder: (context, snapshot) {
-          // if (snapshot.connectionState == ConnectionState.waiting) {
-          //   return Container();
-          // }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container();
+          }
 
           return SingleChildScrollView(
             child: Column(
               children: [
                 const HomeCalendar(),
-                NoFitness(
-                  createFitness: widget.createFitness,
-                ),
+                fitnessList.length > 0
+                    ? Center(
+                        child: Text('${fitnessList.length}'),
+                      )
+                    : NoFitness(
+                        createFitness: widget.createFitness,
+                      ),
               ],
             ),
           );

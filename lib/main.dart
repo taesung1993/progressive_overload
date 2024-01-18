@@ -2,6 +2,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:progressive_overload/providers/date_provider.dart';
+import 'package:progressive_overload/providers/fitness_provider.dart';
 import 'package:progressive_overload/screens/home_screen.dart';
 import 'package:progressive_overload/widgets/creating_fitness_bottom_sheet.dart';
 import 'package:progressive_overload/widgets/gnb.dart';
@@ -16,7 +17,7 @@ void main() {
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  _openCreatingFitnessBottomSheet(DateTime now) {
+  _openCreatingFitnessBottomSheet(DateTime now, WidgetRef ref) {
     return (BuildContext context) => showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -28,6 +29,12 @@ class MyApp extends ConsumerWidget {
           ),
           builder: (context) {
             return CreatingFitnessBottomSheet(now: now);
+          },
+        ).then(
+          (value) {
+            if (value) {
+              ref.read(fitnessProvider.notifier).loadFitnessList();
+            }
           },
         );
   }
@@ -41,11 +48,11 @@ class MyApp extends ConsumerWidget {
       home: Scaffold(
         body: SafeArea(
           child: HomeScreen(
-            createFitness: _openCreatingFitnessBottomSheet(_now),
+            createFitness: _openCreatingFitnessBottomSheet(_now, ref),
           ),
         ),
         bottomNavigationBar: GNB(
-          createFitness: _openCreatingFitnessBottomSheet(_now),
+          createFitness: _openCreatingFitnessBottomSheet(_now, ref),
         ),
       ),
     );

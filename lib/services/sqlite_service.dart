@@ -17,7 +17,7 @@ class SQLiteService {
       onCreate: (Database db, int version) async {
         await db.execute('''
               CREATE TABLE fitness_list(
-                fitness_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 name TEXT NOT NULL, 
                 maxWeight FLOAT NOT NULL, 
                 maxCount INTEGER NOT NULL, 
@@ -26,7 +26,7 @@ class SQLiteService {
             ''');
         await db.execute('''
         CREATE TABLE training_set (
-          training_set_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           sequence INTEGER NOT NULL,
           weight FLOAT NOT NULL,
           count INTEGER NOT NULL,
@@ -57,7 +57,7 @@ class SQLiteService {
         "maxCount": maxCount,
         "fitnessDate": fitnessDate,
       },
-      // conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
@@ -74,22 +74,19 @@ class SQLiteService {
     }
 
     String query = '''SELECT 
-        F.fitness_id AS id, 
-        F.name,
-        F.maxWeight,
-        F.maxCount,
-        F.fitnessDate,
-        json_group_array(
+      F.*, 
+      json_group_array(
           json_object(
-            'id', T.training_set_id,
-            'sequence', T.sequence,
-            'weight', T.weight,
-            'count', T.count
-            )) AS trainingSet 
-        FROM fitness_list F
-        LEFT JOIN training_set T
-        ON F.fitness_id = T.fitness_id
-      ''';
+              'id', T.id,
+              'sequence', T.sequence,
+              'weight', T.weight,
+              'count', T.count
+          )
+      ) AS trainingSet
+      FROM fitness_list F
+      LEFT JOIN training_set T ON F.id = T.fitness_id
+      GROUP BY F.id
+    ''';
 
     if (conditions.isNotEmpty) {
       query += ' WHERE ${conditions.join(' AND ')}';

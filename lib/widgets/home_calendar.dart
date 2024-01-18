@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 import 'package:progressive_overload/providers/date_provider.dart';
+import 'package:progressive_overload/providers/fitness_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -74,6 +75,24 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
     });
   }
 
+  Map<DateTime, List<String>> get events {
+    final fitnessList = ref.watch(fitnessProvider);
+    final Map<DateTime, List<String>> map = {};
+
+    for (final item in fitnessList) {
+      DateTime date = DateTime(item.fitnessDate);
+
+      if (!map.containsKey(date)) {
+        final time = DateTime.fromMillisecondsSinceEpoch(item.fitnessDate);
+        final key = DateTime(time.year, time.month, time.day);
+
+        map[key] = [item.name];
+      }
+    }
+
+    return map;
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = ref.watch(dateProvider);
@@ -133,6 +152,26 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
                 firstDay: firstDay,
                 lastDay: lastDay,
                 focusedDay: now,
+                calendarStyle: CalendarStyle(
+                  markerSize: 4,
+                  markerDecoration: BoxDecoration(
+                    color: pallete[Pallete.primary1],
+                    shape: BoxShape.circle,
+                  ),
+                  cellPadding: EdgeInsets.zero,
+                  cellMargin: EdgeInsets.zero,
+                  markersMaxCount: 1,
+                  markerSizeScale: 1,
+                ),
+                eventLoader: (day) {
+                  final key = DateTime(day.year, day.month, day.day);
+
+                  if (events.containsKey(key)) {
+                    return events[key]!;
+                  }
+
+                  return [];
+                },
                 calendarFormat: _format,
                 daysOfWeekHeight: 18,
                 headerVisible: false,
