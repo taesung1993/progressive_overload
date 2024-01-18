@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/providers/date_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+const RANGE = 50;
 
 class HomeCalendar extends ConsumerStatefulWidget {
   const HomeCalendar({Key? key}) : super(key: key);
@@ -19,18 +22,12 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
   late AnimationController _animationController;
 
   CalendarFormat _format = CalendarFormat.week;
-  DateTime _now = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   String direction = '';
-  late DateTime _firstDay;
-  late DateTime _lastDay;
 
   @override
   void initState() {
     super.initState();
-    _firstDay = DateTime.utc(_now.year - 50, 1, 1);
-    _lastDay = DateTime.utc(_now.year + 50, 12, 31);
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -45,10 +42,12 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
   }
 
   get headerTitle {
+    final _now = ref.watch(dateProvider);
     return '${_now.month}월, ${_now.year}';
   }
 
   void _openDatePicker(BuildContext context) {
+    final _now = ref.watch(dateProvider);
     _animationController.forward(from: 0.0);
 
     showModalBottomSheet(
@@ -68,7 +67,7 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
     ).then((value) {
       if (value.runtimeType == DateTime) {
         setState(() {
-          _now = value;
+          ref.read(dateProvider.notifier).changeDate(value);
         });
       }
       _animationController.reverse(from: 0.5);
@@ -77,6 +76,10 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
 
   @override
   Widget build(BuildContext context) {
+    final now = ref.watch(dateProvider);
+    final firstDay = DateTime.utc(now.year - RANGE, 1, 1);
+    final lastDay = DateTime.utc(now.year + RANGE, 12, 31);
+
     return Column(
       children: [
         Container(
@@ -127,9 +130,9 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
                 right: 31,
               ),
               child: TableCalendar(
-                firstDay: _firstDay,
-                lastDay: _lastDay,
-                focusedDay: _now,
+                firstDay: firstDay,
+                lastDay: lastDay,
+                focusedDay: now,
                 calendarFormat: _format,
                 daysOfWeekHeight: 18,
                 headerVisible: false,
@@ -139,13 +142,8 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
                 },
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
+                    ref.read(dateProvider.notifier).changeDate(focusedDay);
                     _selectedDay = selectedDay;
-                    _now = focusedDay;
-                  });
-                },
-                onPageChanged: (focusedDay) {
-                  setState(() {
-                    _now = focusedDay;
                   });
                 },
                 calendarBuilders: CalendarBuilders(
