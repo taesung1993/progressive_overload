@@ -5,10 +5,10 @@ import 'package:progressive_overload/widgets/add_button.dart';
 class GNB extends StatelessWidget {
   const GNB({
     super.key,
-    required this.createWorkout,
+    required this.createFitness,
   });
 
-  final void Function(BuildContext context) createWorkout;
+  final void Function(BuildContext context) createFitness;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class GNB extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: AddButton(
-        onTap: () => createWorkout(context),
+        onTap: () => createFitness(context),
         size: 56,
         iconSize: 18,
         iconBackgroundColor: Pallete.primary1,

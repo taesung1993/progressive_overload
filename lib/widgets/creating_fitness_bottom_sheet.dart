@@ -1,17 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
-import 'package:progressive_overload/models/training_set_item_model.dart';
-import 'package:progressive_overload/models/workout_item_model.dart';
-import 'package:progressive_overload/providers/workout_provider.dart';
+import 'package:progressive_overload/providers/fitness_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
 import 'package:progressive_overload/widgets/training_set_item.dart';
 
-class CreatingWorkoutBottomSheet extends ConsumerStatefulWidget {
-  const CreatingWorkoutBottomSheet({
+class CreatingFitnessBottomSheet extends ConsumerStatefulWidget {
+  const CreatingFitnessBottomSheet({
     super.key,
     required this.now,
   });
@@ -20,18 +20,18 @@ class CreatingWorkoutBottomSheet extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return _CreatingWorkoutBottomSheet();
+    return _CreatingFitnessBottomSheet();
   }
 }
 
-class _CreatingWorkoutBottomSheet
-    extends ConsumerState<CreatingWorkoutBottomSheet>
+class _CreatingFitnessBottomSheet
+    extends ConsumerState<CreatingFitnessBottomSheet>
     with SingleTickerProviderStateMixin {
-  late DateTime _workedoutAt;
+  late DateTime _fitnessDate;
   late AnimationController _animationController;
 
-  final List<TrainingSetItemModel> _trainingSetItems = [
-    TrainingSetItemModel(),
+  final List<Map<String, String>> _trainingSetItems = [
+    {"enteredWeight": '', "enteredCount": ''}
   ];
 
   String _workname = '';
@@ -40,7 +40,7 @@ class _CreatingWorkoutBottomSheet
   void initState() {
     // TODO: implement initState
     super.initState();
-    _workedoutAt = widget.now;
+    _fitnessDate = widget.now;
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -69,14 +69,14 @@ class _CreatingWorkoutBottomSheet
       clipBehavior: Clip.hardEdge,
       builder: (context) {
         return DatePickerBottomSheet(
-          now: _workedoutAt,
+          now: _fitnessDate,
           datePickerFormat: DatePickerFormat.YYYYMMDD,
         );
       },
     ).then((value) {
       if (value.runtimeType == DateTime) {
         setState(() {
-          _workedoutAt = value;
+          _fitnessDate = value;
         });
       }
     });
@@ -113,7 +113,7 @@ class _CreatingWorkoutBottomSheet
     );
   }
 
-  Widget _WorkedoutAtFormControl() {
+  Widget _FitnessAtFormControl() {
     return Container(
       width: double.infinity,
       height: 48,
@@ -131,7 +131,7 @@ class _CreatingWorkoutBottomSheet
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            DateFormat('yyyy.MM.dd').format(_workedoutAt),
+            DateFormat('yyyy.MM.dd').format(_fitnessDate),
             style: typos[Typos.H3_500]!.copyWith(color: pallete[Pallete.black]),
           ),
           IconButton(
@@ -147,16 +147,16 @@ class _CreatingWorkoutBottomSheet
     );
   }
 
-  void _onChangeWorkoutName(String value) {
+  void _onChangeFitnessName(String value) {
     setState(() {
       _workname = value;
     });
   }
 
-  Widget _WorkoutNameFormControl() {
+  Widget _FitnessNameFormControl() {
     return TextField(
       keyboardType: TextInputType.text,
-      onChanged: _onChangeWorkoutName,
+      onChanged: _onChangeFitnessName,
       style: typos[Typos.H3_500]!.copyWith(
         color: pallete[Pallete.black],
       ),
@@ -194,9 +194,7 @@ class _CreatingWorkoutBottomSheet
     return ElevatedButton(
       onPressed: () {
         setState(() {
-          _trainingSetItems.add(
-            TrainingSetItemModel(),
-          );
+          _trainingSetItems.add({"enteredWeight": '', "enteredCount": ''});
         });
       },
       style: ElevatedButton.styleFrom(
@@ -225,36 +223,38 @@ class _CreatingWorkoutBottomSheet
   }
 
   get isValid {
-    return _workname.isNotEmpty &&
-        _trainingSetItems.every(
-          (item) =>
-              item.enteredCount.isNotEmpty && item.enteredWeight.isNotEmpty,
-        );
+    if (_workname.isEmpty) {
+      return false;
+    }
+
+    return _trainingSetItems.every(
+      (element) {
+        return element["enteredWeight"]!.isNotEmpty &&
+            double.tryParse(element["enteredWeight"]!) != null &&
+            element["enteredCount"]!.isNotEmpty &&
+            int.tryParse(element["enteredCount"]!) != null;
+      },
+    );
   }
 
   Future<void> _onSubmit() async {
-    int _maxCount = 0;
-    double _maxWeight = 0.0;
+    int maxCount = 0;
+    double maxWeight = 0.0;
 
     for (int i = 0; i < _trainingSetItems.length; i++) {
-      _maxCount = _maxCount >= _trainingSetItems[i].count
-          ? _maxCount
-          : _trainingSetItems[i].count;
-
-      _maxWeight = _maxWeight >= _trainingSetItems[i].weight
-          ? _maxWeight
-          : _trainingSetItems[i].weight;
+      maxCount =
+          max(maxCount, int.parse(_trainingSetItems[i]["enteredCount"]!));
+      maxWeight =
+          max(maxWeight, double.parse(_trainingSetItems[i]["enteredWeight"]!));
     }
 
-    final WorkoutItemModel newWorkoutItem = WorkoutItemModel(
-      name: _workname,
-      maxWeightInTrainingSet: _maxWeight,
-      maxCountInTrainingSet: _maxCount,
-      workedoutAt: _workedoutAt.microsecondsSinceEpoch,
-    );
-
-    ref.read(workoutProvider.notifier).addWorkout(
-        newWorkoutItem, _trainingSetItems, _workedoutAt.microsecondsSinceEpoch);
+    ref.read(fitnessProvider.notifier).addFitness(
+          name: _workname,
+          maxCount: maxCount,
+          maxWeight: maxWeight,
+          fitnessDate: _fitnessDate.millisecondsSinceEpoch,
+          trainingSet: _trainingSetItems,
+        );
   }
 
   Widget _SubmitButton() {
@@ -278,18 +278,18 @@ class _CreatingWorkoutBottomSheet
     );
   }
 
-  void Function(String value) _onChangeWorkoutCount(int index) {
+  void Function(String value) _onChangeFitnessCount(int index) {
     return (String value) {
       setState(() {
-        _trainingSetItems[index].enteredCount = value;
+        _trainingSetItems[index]["enteredCount"] = value;
       });
     };
   }
 
-  void Function(String value) _onChangeWorkoutWeight(int index) {
+  void Function(String value) _onChangeFitnessWeight(int index) {
     return (String value) {
       setState(() {
-        _trainingSetItems[index].enteredWeight = value;
+        _trainingSetItems[index]["enteredWeight"] = value;
       });
     };
   }
@@ -317,9 +317,9 @@ class _CreatingWorkoutBottomSheet
               _Title(),
               _RecentRecords(),
               const SizedBox(height: 20),
-              _WorkedoutAtFormControl(),
+              _FitnessAtFormControl(),
               const SizedBox(height: 16),
-              _WorkoutNameFormControl(),
+              _FitnessNameFormControl(),
               const SizedBox(height: 24),
               _AddTrainingSet(),
               const SizedBox(
@@ -336,10 +336,10 @@ class _CreatingWorkoutBottomSheet
                           children: [
                             TrainingSetItem(
                               setNumber: index + 1,
-                              onChangeWorkoutCount:
-                                  _onChangeWorkoutCount(index),
-                              onChangeWorkoutWeight:
-                                  _onChangeWorkoutWeight(index),
+                              onChangeFitnessCount:
+                                  _onChangeFitnessCount(index),
+                              onChangeFitnessWeight:
+                                  _onChangeFitnessWeight(index),
                               onDeleteTrainingSetItem: () =>
                                   _onDeleteTrainingSetItem(index),
                             ),

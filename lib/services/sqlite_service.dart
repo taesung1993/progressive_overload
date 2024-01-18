@@ -1,5 +1,7 @@
-import 'package:progressive_overload/models/training_set_item_model.dart';
-import 'package:progressive_overload/models/workout_item_model.dart';
+import 'dart:convert';
+
+import 'package:progressive_overload/models/fitness.dart';
+import 'package:progressive_overload/models/training_set.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -14,23 +16,22 @@ class SQLiteService {
       version: 1,
       onCreate: (Database db, int version) async {
         await db.execute('''
-              CREATE TABLE workout_list(
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+              CREATE TABLE fitness_list(
+                fitness_id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 name TEXT NOT NULL, 
-                maxWeightInTrainingSet FLOAT NOT NULL, 
-                maxCountInTrainingSet INTEGER NOT NULL, 
-                workedoutAt INTEGER NOT NULL
+                maxWeight FLOAT NOT NULL, 
+                maxCount INTEGER NOT NULL, 
+                fitnessDate INTEGER NOT NULL
               )
             ''');
         await db.execute('''
         CREATE TABLE training_set (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          training_set_id INTEGER PRIMARY KEY AUTOINCREMENT,
           sequence INTEGER NOT NULL,
           weight FLOAT NOT NULL,
           count INTEGER NOT NULL,
-          workedoutAt INTEGER NOT NULL,
-          workout_list_id INTEGER NOT NULL,
-          FOREIGN KEY (workout_list_id) REFERENCES workout_list (id)
+          fitness_id INTEGER NOT NULL,
+          FOREIGN KEY (fitness_id) REFERENCES fitness_list (id)
           ON DELETE CASCADE ON UPDATE CASCADE
         )
       ''');
@@ -40,17 +41,27 @@ class SQLiteService {
     return database;
   }
 
-  Future<int> insertWorkoutItem(WorkoutItemModel item) async {
+  Future<int> insertFitness({
+    required String name,
+    required double maxWeight,
+    required int maxCount,
+    required int fitnessDate,
+  }) async {
     final db = await init();
 
     return await db.insert(
-      'workout_list',
-      item.toMap(),
+      'fitness_list',
+      {
+        "name": name,
+        "maxWeight": maxWeight,
+        "maxCount": maxCount,
+        "fitnessDate": fitnessDate,
+      },
       // conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<List<Map<String, dynamic>>> getWorkoutList({
+  Future<List<Fitness>> getFitnessList({
     List<int>? durations,
   }) async {
     final db = await init();
@@ -58,57 +69,79 @@ class SQLiteService {
     final List<String> arguments = [];
 
     if (durations != null && durations.isNotEmpty) {
-      conditions.add('workedoutAt >= ? AND workedoutAt <= ?');
+      conditions.add('fitnessDate >= ? AND fitnessDate <= ?');
       arguments.addAll([durations[0].toString(), durations[1].toString()]);
     }
 
-    String query = 'SELECT * FROM workout_list';
+    String query = '''SELECT 
+        F.fitness_id AS id, 
+        F.name,
+        F.maxWeight,
+        F.maxCount,
+        F.fitnessDate,
+        json_group_array(
+          json_object(
+            'id', T.training_set_id,
+            'sequence', T.sequence,
+            'weight', T.weight,
+            'count', T.count
+            )) AS trainingSet 
+        FROM fitness_list F
+        LEFT JOIN training_set T
+        ON F.fitness_id = T.fitness_id
+      ''';
 
     if (conditions.isNotEmpty) {
       query += ' WHERE ${conditions.join(' AND ')}';
     }
 
-    print(query);
-    print(arguments);
-
-    final list = await db.rawQuery(
+    final raw = await db.rawQuery(
       query,
       arguments,
     );
 
-    return list;
-  }
+    final data =
+        raw.toList().where((element) => element['id'] != null).toList();
+    final List<Fitness> fitnessList = [];
 
-  Future<List<Map<String, dynamic>>> loadWorkoutListInMonth(
-      DateTime firstDay, DateTime lastDay) async {
-    final db = await init();
-    final list = await db.rawQuery('SELECT * FROM workout_list');
-    // final list2 = await db.query('training_set');
+    for (Map<String, Object?> item in data) {
+      List<dynamic> trainingSet = json.decode(item['trainingSet'].toString());
 
-    // 'SELECT * FROM workout_list JOIN training_set ON workout_list.id = training_set.workout_list_id WHERE workedoutAt >= ? AND workedoutAt <= ?',
-    // [firstDay.microsecondsSinceEpoch, lastDay.microsecondsSinceEpoch],
+      fitnessList.add(Fitness(
+        id: int.parse(item["id"].toString()),
+        name: item["name"].toString(),
+        maxWeight: double.parse(item["maxWeight"].toString()),
+        maxCount: int.parse(item["maxCount"].toString()),
+        fitnessDate: int.parse(item["fitnessDate"].toString()),
+        set: trainingSet
+            .map(
+              (setItem) => TrainingSet(
+                id: int.parse(setItem["id"].toString()),
+                sequence: int.parse(setItem["sequence"].toString()),
+                weight: double.parse(setItem["weight"].toString()),
+                count: int.parse(setItem["count"].toString()),
+              ),
+            )
+            .toList(),
+      ));
+    }
 
-    print(list);
-    // print(list2);
-
-    return list;
+    return fitnessList;
   }
 
   Future<void> insertTrainingSet(
-      int workoutId, int workedoutAt, List<TrainingSetItemModel> set) async {
+      int fitnessId, List<Map<String, String>> set) async {
     final db = await init();
     final Batch batch = db.batch();
 
     for (int index = 0; index < set.length; index++) {
-      final TrainingSetItemModel item = set[index];
-      batch.insert(
-        'training_set',
-        item.toMap(
-          workoutId,
-          index + 1,
-          workedoutAt,
-        ),
-      );
+      final Map<String, String> item = set[index];
+      batch.insert('training_set', {
+        "sequence": index + 1,
+        "weight": item["enteredWeight"]!,
+        "count": item["enteredWeight"]!,
+        "fitness_id": fitnessId,
+      });
     }
 
     await batch.commit();
@@ -116,7 +149,7 @@ class SQLiteService {
 
   Future<List<Map<String, dynamic>>> getTrainingSet() async {
     final db = await init();
-    final list = await db.query('training_set');
+    final list = await db.rawQuery('SELECT * FROM training_set');
 
     return list;
   }
