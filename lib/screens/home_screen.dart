@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:progressive_overload/providers/fitness_provider.dart';
+import 'package:progressive_overload/widgets/fitness_list.dart';
 import 'package:progressive_overload/widgets/home_calendar.dart';
 import 'package:progressive_overload/widgets/no_fitness.dart';
 
@@ -37,21 +38,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: FutureBuilder(
         future: _fitnessListFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container();
-          }
-
           return SingleChildScrollView(
             child: Column(
               children: [
                 const HomeCalendar(),
-                fitnessList.length > 0
-                    ? Center(
-                        child: Text('${fitnessList.length}'),
-                      )
-                    : NoFitness(
-                        createFitness: widget.createFitness,
-                      ),
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  Container(),
+                if (snapshot.connectionState == ConnectionState.done)
+                  fitnessList.isNotEmpty
+                      ? FitnessList(fitnessList: fitnessList)
+                      : NoFitness(
+                          createFitness: widget.createFitness,
+                        ),
               ],
             ),
           );
@@ -60,11 +58,3 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 }
-
-    // return FutureBuilder(
-    //     future: _fitnessListFuture, builder: (context, snapshot) {
-    //       return snapshot.connectionState == ConnectionState.waiting ? Container();
-    //     });
-
-    // // TODO: implement build
-    // return 
