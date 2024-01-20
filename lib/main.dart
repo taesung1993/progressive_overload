@@ -32,7 +32,7 @@ class MyApp extends ConsumerWidget {
           },
         ).then(
           (value) {
-            if (value) {
+            if (value != null) {
               ref.read(fitnessProvider.notifier).loadFitnessList();
             }
           },

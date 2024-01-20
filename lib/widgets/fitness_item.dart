@@ -56,14 +56,10 @@ class FitnessItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Ink(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: pallete[Pallete.white],
-                ),
+              Material(
+                color: Colors.transparent,
                 child: InkWell(
+                  onTap: () {},
                   child: SvgPicture.asset(
                     'assets/icons/arrow-right-sign-to-navigate.svg',
                     width: 20,

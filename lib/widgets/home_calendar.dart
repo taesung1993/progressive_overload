@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/models/fitness.dart';
 import 'package:progressive_overload/providers/date_provider.dart';
 import 'package:progressive_overload/providers/fitness_provider.dart';
 import 'package:progressive_overload/widgets/date_picker_botttom_sheet.dart';
@@ -75,22 +76,9 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
     });
   }
 
-  Map<DateTime, List<String>> get events {
-    final fitnessList = ref.watch(fitnessProvider);
-    final Map<DateTime, List<String>> map = {};
-
-    for (final item in fitnessList) {
-      DateTime date = DateTime(item.fitnessDate);
-
-      if (!map.containsKey(date)) {
-        final time = DateTime.fromMillisecondsSinceEpoch(item.fitnessDate);
-        final key = DateTime(time.year, time.month, time.day);
-
-        map[key] = [item.name];
-      }
-    }
-
-    return map;
+  Map<DateTime, List<Fitness>> get events {
+    final records = ref.watch(fitnessProvider);
+    return records;
   }
 
   @override
@@ -167,7 +155,7 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
                   final key = DateTime(day.year, day.month, day.day);
 
                   if (events.containsKey(key)) {
-                    return events[key]!;
+                    return events[key]!.map((e) => e.name).toList();
                   }
 
                   return [];
@@ -181,8 +169,10 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
                 },
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
-                    ref.read(dateProvider.notifier).changeDate(focusedDay);
-                    _selectedDay = selectedDay;
+                    ref
+                        .read(dateProvider.notifier)
+                        .changeDate(DateUtils.dateOnly(focusedDay));
+                    _selectedDay = DateUtils.dateOnly(selectedDay);
                   });
                 },
                 calendarBuilders: CalendarBuilders(

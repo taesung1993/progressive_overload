@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:progressive_overload/providers/date_provider.dart';
 import 'package:progressive_overload/providers/fitness_provider.dart';
 import 'package:progressive_overload/widgets/fitness_list.dart';
 import 'package:progressive_overload/widgets/home_calendar.dart';
@@ -30,7 +31,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fitnessList = ref.watch(fitnessProvider);
+    final now = ref.watch(dateProvider);
+    final records = ref.watch(fitnessProvider);
+    final fitnessList = records[now] ?? [];
 
     return SizedBox(
       width: double.infinity,

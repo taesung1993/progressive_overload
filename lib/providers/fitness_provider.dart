@@ -1,11 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:progressive_overload/models/fitness.dart';
 import 'package:progressive_overload/services/sqlite_service.dart';
 
 final _sqlite = SQLiteService();
 
-class FitnessNotifier extends StateNotifier<List<Fitness>> {
-  FitnessNotifier() : super([]);
+class FitnessNotifier extends StateNotifier<Map<DateTime, List<Fitness>>> {
+  FitnessNotifier() : super({});
 
   Future<void> addFitness({
     required String name,
@@ -26,9 +27,23 @@ class FitnessNotifier extends StateNotifier<List<Fitness>> {
 
   Future<void> loadFitnessList() async {
     List<Fitness> fitnessList = await _sqlite.getFitnessList();
-    state = fitnessList;
+
+    for (Fitness item in fitnessList) {
+      final key = DateUtils.dateOnly(
+          DateTime.fromMillisecondsSinceEpoch(item.fitnessDate));
+      final Map<DateTime, List<Fitness>> newState = Map.from(state);
+
+      if (state.containsKey(key)) {
+        newState[key]!.add(item);
+      } else {
+        newState[key] = [item];
+      }
+
+      state = newState;
+    }
   }
 }
 
-final fitnessProvider = StateNotifierProvider<FitnessNotifier, List<Fitness>>(
-    (ref) => FitnessNotifier());
+final fitnessProvider =
+    StateNotifierProvider<FitnessNotifier, Map<DateTime, List<Fitness>>>(
+        (ref) => FitnessNotifier());
