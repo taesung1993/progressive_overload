@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/models/fitness.dart';
 import 'package:progressive_overload/widgets/fitness_detail_bottom_sheet.dart';
 
 class FitnessItem extends StatelessWidget {
   const FitnessItem({
     super.key,
-    required this.name,
-    required this.totalSetCount,
+    required this.fitness,
   });
 
-  final String name;
-  final int totalSetCount;
+  final Fitness fitness;
 
   void _openFitnessDetailBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -25,7 +24,9 @@ class FitnessItem extends StatelessWidget {
         ),
       ),
       builder: (context) {
-        return const FitnessDetailBottomSheet();
+        return FitnessDetailBottomSheet(
+          fitness: fitness,
+        );
       },
     );
   }
@@ -57,7 +58,7 @@ class FitnessItem extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              name,
+              fitness.name,
               style: typos[Typos.T1_500]!.copyWith(
                 color: pallete[Pallete.black],
               ),
@@ -67,7 +68,7 @@ class FitnessItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                '$totalSetCount 세트',
+                '${fitness.set.length} 세트',
                 style: typos[Typos.T1_400]!.copyWith(
                   color: pallete[Pallete.black],
                 ),

@@ -25,8 +25,7 @@ class FitnessList extends StatelessWidget {
             Column(
               children: [
                 FitnessItem(
-                  name: fitnessList[i].name,
-                  totalSetCount: fitnessList[i].set.length,
+                  fitness: fitnessList[i],
                 ),
                 if (i < fitnessList.length - 1) const SizedBox(height: 16),
               ],
