@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
+import 'package:progressive_overload/widgets/fitness_detail_bottom_sheet.dart';
 
 class FitnessItem extends StatelessWidget {
   const FitnessItem({
@@ -12,6 +13,22 @@ class FitnessItem extends StatelessWidget {
 
   final String name;
   final int totalSetCount;
+
+  void _openFitnessDetailBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
+      ),
+      builder: (context) {
+        return const FitnessDetailBottomSheet();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +76,7 @@ class FitnessItem extends StatelessWidget {
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () => _openFitnessDetailBottomSheet(context),
                   child: SvgPicture.asset(
                     'assets/icons/arrow-right-sign-to-navigate.svg',
                     width: 20,
