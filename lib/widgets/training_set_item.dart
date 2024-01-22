@@ -9,6 +9,7 @@ class TrainingSetItem extends StatelessWidget {
     required this.setNumber,
     this.weight = '',
     this.count = '',
+    this.isEdit = true,
     required this.onChangeFitnessCount,
     required this.onChangeFitnessWeight,
     required this.onDeleteTrainingSetItem,
@@ -17,6 +18,7 @@ class TrainingSetItem extends StatelessWidget {
   final int setNumber;
   final String? weight;
   final String? count;
+  final bool isEdit;
   final void Function(String value) onChangeFitnessCount;
   final void Function(String value) onChangeFitnessWeight;
   final void Function() onDeleteTrainingSetItem;
@@ -62,6 +64,7 @@ class TrainingSetItem extends StatelessWidget {
                   width: 60,
                   height: 28,
                   child: TextField(
+                    readOnly: !isEdit,
                     keyboardType: TextInputType.number,
                     controller: TextEditingController(text: weight),
                     onChanged: onChangeFitnessWeight,
@@ -106,6 +109,7 @@ class TrainingSetItem extends StatelessWidget {
                   width: 60,
                   height: 28,
                   child: TextField(
+                    readOnly: !isEdit,
                     keyboardType: TextInputType.number,
                     controller: TextEditingController(text: count),
                     onChanged: onChangeFitnessCount,
@@ -144,15 +148,10 @@ class TrainingSetItem extends StatelessWidget {
                 ),
               ],
             ),
-            Ink(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                color: pallete[Pallete.lightGrey2],
-              ),
+            Material(
+              color: Colors.transparent,
               child: InkWell(
-                onTap: setNumber == 1 ? null : onDeleteTrainingSetItem,
+                onTap: onDeleteTrainingSetItem,
                 child: SvgPicture.asset(
                   'assets/icons/trash.svg',
                   width: 16,

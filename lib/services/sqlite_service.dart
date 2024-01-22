@@ -27,7 +27,6 @@ class SQLiteService {
         await db.execute('''
         CREATE TABLE training_set (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          sequence INTEGER NOT NULL,
           weight FLOAT NOT NULL,
           count INTEGER NOT NULL,
           fitness_id INTEGER NOT NULL,
@@ -78,7 +77,6 @@ class SQLiteService {
       json_group_array(
           json_object(
               'id', T.id,
-              'sequence', T.sequence,
               'weight', T.weight,
               'count', T.count
           )
@@ -114,7 +112,6 @@ class SQLiteService {
             .map(
               (setItem) => TrainingSet(
                 id: int.parse(setItem["id"].toString()),
-                sequence: int.parse(setItem["sequence"].toString()),
                 weight: double.parse(setItem["weight"].toString()),
                 count: int.parse(setItem["count"].toString()),
               ),
@@ -134,7 +131,6 @@ class SQLiteService {
     for (int index = 0; index < set.length; index++) {
       final Map<String, String> item = set[index];
       batch.insert('training_set', {
-        "sequence": index + 1,
         "weight": item["enteredWeight"]!,
         "count": item["enteredWeight"]!,
         "fitness_id": fitnessId,
@@ -147,6 +143,28 @@ class SQLiteService {
   Future<List<Map<String, dynamic>>> getTrainingSet() async {
     final db = await init();
     final list = await db.rawQuery('SELECT * FROM training_set');
+
+    return list;
+  }
+
+  Future<List<TrainingSet>> deleteTrainingSet(int id, int fitness_id) async {
+    final db = await init();
+    await db.delete(
+      'training_set',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    final raw = await db.rawQuery(
+        'SELECT * FROM training_set T WHERE T.fitness_id = $fitness_id');
+
+    final list = raw
+        .map(
+          (item) => TrainingSet(
+              id: item["id"] as int,
+              weight: item['weight'] as double,
+              count: item['count'] as int),
+        )
+        .toList();
 
     return list;
   }

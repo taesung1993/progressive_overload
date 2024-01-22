@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:progressive_overload/models/fitness.dart';
 import 'package:progressive_overload/services/sqlite_service.dart';
+import 'dart:math';
 
 final _sqlite = SQLiteService();
 
@@ -41,6 +42,36 @@ class FitnessNotifier extends StateNotifier<Map<DateTime, List<Fitness>>> {
 
       state = newState;
     }
+  }
+
+  Future<void> deleteTrainingSet(Fitness fitness, int setId) async {
+    final Map<DateTime, List<Fitness>> newState = Map.from(state);
+    final key = DateUtils.dateOnly(
+        DateTime.fromMillisecondsSinceEpoch(fitness.fitnessDate));
+    final trainingSet = await _sqlite.deleteTrainingSet(setId, fitness.id);
+
+    int maxCount = 0;
+    double maxWeight = 0.0;
+
+    for (int i = 0; i < trainingSet.length; i++) {
+      maxCount = max(maxCount, trainingSet[i].count);
+      maxWeight = max(maxWeight, trainingSet[i].weight);
+    }
+
+    for (int i = 0; i < newState[key]!.length; i++) {
+      if (newState[key]![i].id == fitness.id) {
+        newState[key]![i] = Fitness(
+          id: fitness.id,
+          name: fitness.name,
+          maxWeight: maxWeight,
+          maxCount: maxCount,
+          fitnessDate: fitness.fitnessDate,
+          set: trainingSet,
+        );
+      }
+    }
+
+    state = newState;
   }
 }
 

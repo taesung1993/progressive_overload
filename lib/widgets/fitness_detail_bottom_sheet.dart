@@ -1,16 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 import 'package:progressive_overload/models/fitness.dart';
+import 'package:progressive_overload/models/training_set.dart';
+import 'package:progressive_overload/providers/fitness_provider.dart';
 import 'package:progressive_overload/widgets/training_set_item.dart';
 
-class FitnessDetailBottomSheet extends StatelessWidget {
+class FitnessDetailBottomSheet extends ConsumerStatefulWidget {
   const FitnessDetailBottomSheet({
     super.key,
     required this.fitness,
   });
 
   final Fitness fitness;
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _FitnessDetailBottomSheetState();
+}
+
+class _FitnessDetailBottomSheetState
+    extends ConsumerState<FitnessDetailBottomSheet> {
+  Future<void> onDeleteTrainingSetItem(TrainingSet setItem) async {
+    await ref
+        .read(fitnessProvider.notifier)
+        .deleteTrainingSet(widget.fitness, setItem.id);
+
+    setState(() {
+      widget.fitness.set.remove(setItem);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +54,7 @@ class FitnessDetailBottomSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      fitness.name,
+                      widget.fitness.name,
                       style: typos[Typos.H1_700]!.copyWith(
                         color: pallete[Pallete.black],
                       ),
@@ -60,18 +80,22 @@ class FitnessDetailBottomSheet extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      for (int i = 0; i < fitness.set.length; i++)
+                      for (int i = 0; i < widget.fitness.set.length; i++)
                         Column(
                           children: [
                             TrainingSetItem(
-                              setNumber: fitness.set[i].sequence,
-                              weight: fitness.set[i].weight.toString(),
-                              count: fitness.set[i].count.toString(),
+                              setNumber: i + 1,
+                              weight: widget.fitness.set[i].weight.toString(),
+                              count: widget.fitness.set[i].count.toString(),
+                              isEdit: false,
                               onChangeFitnessCount: (value) {},
                               onChangeFitnessWeight: (value) {},
-                              onDeleteTrainingSetItem: () {},
+                              onDeleteTrainingSetItem: () =>
+                                  onDeleteTrainingSetItem(
+                                widget.fitness.set[i],
+                              ),
                             ),
-                            if (i < fitness.set.length - 1)
+                            if (i < widget.fitness.set.length - 1)
                               const SizedBox(height: 10),
                           ],
                         )
@@ -92,7 +116,7 @@ class FitnessDetailBottomSheet extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '전체 삭제',
+                    '운동 삭제',
                     style: typos[Typos.H3_600]!.copyWith(
                       color: pallete[Pallete.white],
                     ),
