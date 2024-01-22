@@ -123,6 +123,15 @@ class SQLiteService {
     return fitnessList;
   }
 
+  Future<void> deleteFitness(int fitness_id) async {
+    final db = await init();
+    await db.delete(
+      'fitness_list',
+      where: 'id = ?',
+      whereArgs: [fitness_id],
+    );
+  }
+
   Future<void> insertTrainingSet(
       int fitnessId, List<Map<String, String>> set) async {
     final db = await init();
