@@ -23,6 +23,17 @@ class FitnessDetailBottomSheet extends ConsumerStatefulWidget {
 class _FitnessDetailBottomSheetState
     extends ConsumerState<FitnessDetailBottomSheet> {
   Future<void> onDeleteTrainingSetItem(TrainingSet setItem) async {
+    if (widget.fitness.set.length == 1) {
+      await ref.read(fitnessProvider.notifier).deleteFitness(widget.fitness);
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context).pop();
+      return;
+    }
+
     await ref
         .read(fitnessProvider.notifier)
         .deleteTrainingSet(widget.fitness, setItem.id);
@@ -30,6 +41,16 @@ class _FitnessDetailBottomSheetState
     setState(() {
       widget.fitness.set.remove(setItem);
     });
+  }
+
+  Future<void> onDeleteFitness(BuildContext context) async {
+    await ref.read(fitnessProvider.notifier).deleteFitness(widget.fitness);
+
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.of(context).pop();
   }
 
   @override
@@ -108,7 +129,7 @@ class _FitnessDetailBottomSheetState
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => onDeleteFitness(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: pallete[Pallete.red1],
                     shape: RoundedRectangleBorder(

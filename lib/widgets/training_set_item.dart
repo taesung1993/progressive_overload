@@ -7,8 +7,8 @@ class TrainingSetItem extends StatelessWidget {
   const TrainingSetItem({
     super.key,
     required this.setNumber,
-    this.weight = '',
-    this.count = '',
+    this.weight,
+    this.count,
     this.isEdit = true,
     required this.onChangeFitnessCount,
     required this.onChangeFitnessWeight,
@@ -66,7 +66,9 @@ class TrainingSetItem extends StatelessWidget {
                   child: TextField(
                     readOnly: !isEdit,
                     keyboardType: TextInputType.number,
-                    controller: TextEditingController(text: weight),
+                    controller: weight != null
+                        ? TextEditingController(text: weight)
+                        : null,
                     onChanged: onChangeFitnessWeight,
                     textAlign: TextAlign.center,
                     style: typos[Typos.T2_500]!.copyWith(
@@ -111,7 +113,9 @@ class TrainingSetItem extends StatelessWidget {
                   child: TextField(
                     readOnly: !isEdit,
                     keyboardType: TextInputType.number,
-                    controller: TextEditingController(text: count),
+                    controller: count != null
+                        ? TextEditingController(text: count)
+                        : null,
                     onChanged: onChangeFitnessCount,
                     textAlign: TextAlign.center,
                     style: typos[Typos.T2_500]!.copyWith(

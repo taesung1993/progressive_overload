@@ -28,20 +28,39 @@ class FitnessNotifier extends StateNotifier<Map<DateTime, List<Fitness>>> {
 
   Future<void> loadFitnessList() async {
     List<Fitness> fitnessList = await _sqlite.getFitnessList();
+    final Map<DateTime, List<Fitness>> newState = Map.from({});
 
     for (Fitness item in fitnessList) {
       final key = DateUtils.dateOnly(
           DateTime.fromMillisecondsSinceEpoch(item.fitnessDate));
-      final Map<DateTime, List<Fitness>> newState = Map.from(state);
 
-      if (state.containsKey(key)) {
+      if (newState.containsKey(key)) {
         newState[key]!.add(item);
       } else {
         newState[key] = [item];
       }
-
-      state = newState;
     }
+
+    state = newState;
+  }
+
+  Future<void> deleteFitness(Fitness fitness) async {
+    final Map<DateTime, List<Fitness>> newState = Map.from(state);
+    final key = DateUtils.dateOnly(
+        DateTime.fromMillisecondsSinceEpoch(fitness.fitnessDate));
+
+    await _sqlite.deleteFitness(fitness.id);
+
+    final newFitness =
+        newState[key]!.where((element) => element.id != fitness.id).toList();
+
+    if (newFitness.isEmpty) {
+      newState.remove(key);
+    } else {
+      newState[key] = newFitness;
+    }
+
+    state = newState;
   }
 
   Future<void> deleteTrainingSet(Fitness fitness, int setId) async {
