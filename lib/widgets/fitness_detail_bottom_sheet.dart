@@ -24,6 +24,7 @@ class FitnessDetailBottomSheet extends ConsumerStatefulWidget {
 class _FitnessDetailBottomSheetState
     extends ConsumerState<FitnessDetailBottomSheet> {
   bool isEdit = false;
+  final List<Map<String, String>> _trainingSetItems = [];
 
   Future<void> onDeleteTrainingSetItem(TrainingSet setItem) async {
     if (widget.fitness.set.length == 1) {
@@ -54,6 +55,56 @@ class _FitnessDetailBottomSheetState
     }
 
     Navigator.of(context).pop();
+  }
+
+  void addTrainingSet() {
+    if (!isEdit) {
+      return;
+    }
+
+    print(widget.fitness);
+  }
+
+  Widget ViewerSection() {
+    return Column(
+      children: [
+        for (int i = 0; i < widget.fitness.set.length; i++)
+          Column(
+            children: [
+              TrainingSetItem(
+                setNumber: i + 1,
+                weight: widget.fitness.set[i].weight.toString(),
+                count: widget.fitness.set[i].count.toString(),
+                isEdit: isEdit,
+                onDeleteTrainingSetItem: () => onDeleteTrainingSetItem(
+                  widget.fitness.set[i],
+                ),
+              ),
+              if (i < widget.fitness.set.length - 1) const SizedBox(height: 10),
+            ],
+          )
+      ],
+    );
+  }
+
+  Widget EditSection() {
+    return Column(
+      children: [
+        for (var index = 0; index < _trainingSetItems.length; index++)
+          Column(
+            children: [
+              TrainingSetItem(
+                setNumber: index + 1,
+                onChangeFitnessCount: (value) {},
+                onChangeFitnessWeight: (value) {},
+                onDeleteTrainingSetItem: () {},
+              ),
+              if (index != _trainingSetItems.length - 1)
+                const SizedBox(height: 10),
+            ],
+          )
+      ],
+    );
   }
 
   @override
@@ -87,6 +138,20 @@ class _FitnessDetailBottomSheetState
                       onPressed: () {
                         setState(() {
                           isEdit = !isEdit;
+                          if (isEdit) {
+                            for (final item in widget.fitness.set) {
+                              _trainingSetItems.add(
+                                {
+                                  "enteredWeight": item.weight.toString(),
+                                  "enteredCount": item.count.toString(),
+                                },
+                              );
+                            }
+
+                            return;
+                          }
+
+                          _trainingSetItems.clear();
                         });
                       },
                       style: ButtonStyle(
@@ -106,29 +171,7 @@ class _FitnessDetailBottomSheetState
               const SizedBox(height: 31),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      for (int i = 0; i < widget.fitness.set.length; i++)
-                        Column(
-                          children: [
-                            TrainingSetItem(
-                              setNumber: i + 1,
-                              weight: widget.fitness.set[i].weight.toString(),
-                              count: widget.fitness.set[i].count.toString(),
-                              isEdit: false,
-                              onChangeFitnessCount: (value) {},
-                              onChangeFitnessWeight: (value) {},
-                              onDeleteTrainingSetItem: () =>
-                                  onDeleteTrainingSetItem(
-                                widget.fitness.set[i],
-                              ),
-                            ),
-                            if (i < widget.fitness.set.length - 1)
-                              const SizedBox(height: 10),
-                          ],
-                        )
-                    ],
-                  ),
+                  child: isEdit ? EditSection() : ViewerSection(),
                 ),
               ),
               const SizedBox(height: 41),
@@ -139,7 +182,7 @@ class _FitnessDetailBottomSheetState
                         child: SizedBox(
                       height: 52,
                       child: ElevatedButton(
-                          onPressed: () => {},
+                          onPressed: addTrainingSet,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: pallete[Pallete.black],
                             shape: RoundedRectangleBorder(

@@ -10,8 +10,8 @@ class TrainingSetItem extends StatelessWidget {
     this.weight,
     this.count,
     this.isEdit = true,
-    required this.onChangeFitnessCount,
-    required this.onChangeFitnessWeight,
+    this.onChangeFitnessCount,
+    this.onChangeFitnessWeight,
     required this.onDeleteTrainingSetItem,
   });
 
@@ -19,8 +19,8 @@ class TrainingSetItem extends StatelessWidget {
   final String? weight;
   final String? count;
   final bool isEdit;
-  final void Function(String value) onChangeFitnessCount;
-  final void Function(String value) onChangeFitnessWeight;
+  final void Function(String value)? onChangeFitnessCount;
+  final void Function(String value)? onChangeFitnessWeight;
   final void Function() onDeleteTrainingSetItem;
 
   @override
@@ -90,7 +90,9 @@ class TrainingSetItem extends StatelessWidget {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           width: 1,
-                          color: pallete[Pallete.primary1]!,
+                          color: isEdit
+                              ? pallete[Pallete.primary1]!
+                              : pallete[Pallete.grey]!,
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -137,7 +139,9 @@ class TrainingSetItem extends StatelessWidget {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           width: 1,
-                          color: pallete[Pallete.primary1]!,
+                          color: isEdit
+                              ? pallete[Pallete.primary1]!
+                              : pallete[Pallete.grey]!,
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
