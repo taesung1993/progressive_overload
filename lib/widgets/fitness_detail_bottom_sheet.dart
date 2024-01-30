@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/designs/Typo.dart';
 import 'package:progressive_overload/models/fitness.dart';
@@ -22,6 +23,8 @@ class FitnessDetailBottomSheet extends ConsumerStatefulWidget {
 
 class _FitnessDetailBottomSheetState
     extends ConsumerState<FitnessDetailBottomSheet> {
+  bool isEdit = false;
+
   Future<void> onDeleteTrainingSetItem(TrainingSet setItem) async {
     if (widget.fitness.set.length == 1) {
       await ref.read(fitnessProvider.notifier).deleteFitness(widget.fitness);
@@ -81,13 +84,17 @@ class _FitnessDetailBottomSheetState
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          isEdit = !isEdit;
+                        });
+                      },
                       style: ButtonStyle(
                         overlayColor: MaterialStateColor.resolveWith((states) =>
                             pallete[Pallete.primary1]!.withOpacity(0.5)),
                       ),
                       child: Text(
-                        '편집하기',
+                        isEdit ? '편집취소' : '편집하기',
                         style: typos[Typos.T1_400]!.copyWith(
                           color: pallete[Pallete.black],
                         ),
@@ -125,25 +132,81 @@ class _FitnessDetailBottomSheetState
                 ),
               ),
               const SizedBox(height: 41),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () => onDeleteFitness(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: pallete[Pallete.red1],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7.0),
+              if (isEdit)
+                Row(
+                  children: [
+                    Expanded(
+                        child: SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
+                          onPressed: () => {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: pallete[Pallete.black],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7.0),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/add_set.svg',
+                                width: 20,
+                                height: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '세트 추가',
+                                style: typos[Typos.H3_600]!.copyWith(
+                                  color: pallete[Pallete.white],
+                                ),
+                              ),
+                            ],
+                          )),
+                    )),
+                    const SizedBox(width: 14),
+                    Expanded(
+                        child: SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: () => {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: pallete[Pallete.primary1],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                          ),
+                        ),
+                        child: Text(
+                          '저장하기',
+                          style: typos[Typos.H3_600]!.copyWith(
+                            color: pallete[Pallete.white],
+                          ),
+                        ),
+                      ),
+                    )),
+                  ],
+                ),
+              if (!isEdit)
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () => onDeleteFitness(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: pallete[Pallete.red1],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7.0),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    '운동 삭제',
-                    style: typos[Typos.H3_600]!.copyWith(
-                      color: pallete[Pallete.white],
+                    child: Text(
+                      '운동 삭제',
+                      style: typos[Typos.H3_600]!.copyWith(
+                        color: pallete[Pallete.white],
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
