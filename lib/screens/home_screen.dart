@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:progressive_overload/designs/Pallete.dart';
 import 'package:progressive_overload/providers/date_provider.dart';
 import 'package:progressive_overload/providers/fitness_provider.dart';
 import 'package:progressive_overload/widgets/fitness_list.dart';
@@ -46,7 +47,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 const HomeCalendar(),
                 if (snapshot.connectionState == ConnectionState.waiting)
-                  Container(),
+                  Container(
+                    margin: const EdgeInsets.only(top: 80),
+                    child: CircularProgressIndicator(
+                      color: pallete[Pallete.primary1],
+                    ),
+                  ),
                 if (snapshot.connectionState == ConnectionState.done)
                   fitnessList.isNotEmpty
                       ? FitnessList(fitnessList: fitnessList)
