@@ -26,6 +26,21 @@ class _FitnessDetailBottomSheetState
   bool isEdit = false;
   final List<Map<String, String>> _trainingSetItems = [];
 
+  get isValid {
+    if (_trainingSetItems.isEmpty) {
+      return false;
+    }
+
+    return _trainingSetItems.every(
+      (element) {
+        return element["enteredWeight"]!.isNotEmpty &&
+            double.tryParse(element["enteredWeight"]!) != null &&
+            element["enteredCount"]!.isNotEmpty &&
+            int.tryParse(element["enteredCount"]!) != null;
+      },
+    );
+  }
+
   Future<void> onDeleteTrainingSetItem(TrainingSet setItem) async {
     if (widget.fitness.set.length == 1) {
       await ref.read(fitnessProvider.notifier).deleteFitness(widget.fitness);
@@ -62,7 +77,19 @@ class _FitnessDetailBottomSheetState
       return;
     }
 
-    print(widget.fitness);
+    setState(() {
+      _trainingSetItems.add(
+        {
+          "enteredWeight": "",
+          "enteredCount": "",
+        },
+      );
+    });
+  }
+
+  void saveTrainingSet() {
+    // print('저장하기');
+    // print(_trainingSetItems);
   }
 
   Widget ViewerSection() {
@@ -95,9 +122,21 @@ class _FitnessDetailBottomSheetState
             children: [
               TrainingSetItem(
                 setNumber: index + 1,
-                onChangeFitnessCount: (value) {},
-                onChangeFitnessWeight: (value) {},
-                onDeleteTrainingSetItem: () {},
+                onChangeFitnessCount: (value) {
+                  setState(() {
+                    _trainingSetItems[index]["enteredCount"] = value;
+                  });
+                },
+                onChangeFitnessWeight: (value) {
+                  setState(() {
+                    _trainingSetItems[index]["enteredWeight"] = value;
+                  });
+                },
+                onDeleteTrainingSetItem: () {
+                  setState(() {
+                    _trainingSetItems.removeAt(index);
+                  });
+                },
               ),
               if (index != _trainingSetItems.length - 1)
                 const SizedBox(height: 10),
@@ -213,9 +252,11 @@ class _FitnessDetailBottomSheetState
                         child: SizedBox(
                       height: 52,
                       child: ElevatedButton(
-                        onPressed: () => {},
+                        onPressed: isValid ? saveTrainingSet : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: pallete[Pallete.primary1],
+                          backgroundColor: isValid
+                              ? pallete[Pallete.primary1]
+                              : pallete[Pallete.grey],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(7.0),
                           ),
