@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -87,9 +89,46 @@ class _FitnessDetailBottomSheetState
     });
   }
 
-  void saveTrainingSet() {
-    // print('저장하기');
-    // print(_trainingSetItems);
+  void saveTrainingSet() async {
+    int newMaxCount = 0;
+    double newMaxWeight = 0.0;
+
+    for (int i = 0; i < _trainingSetItems.length; i++) {
+      String? enteredCount = _trainingSetItems[i]["enteredCount"];
+      String? enteredWeight = _trainingSetItems[i]["enteredWeight"];
+
+      if (enteredCount != null) {
+        newMaxCount = max(newMaxCount, int.parse(enteredCount));
+      }
+
+      if (enteredWeight != null) {
+        newMaxWeight = max(newMaxWeight, double.parse(enteredWeight));
+      }
+    }
+
+    await ref.read(fitnessProvider.notifier).updateFitness(
+          id: widget.fitness.id,
+          name: widget.fitness.name,
+          maxCount: newMaxCount,
+          maxWeight: newMaxWeight,
+          fitnessDate: widget.fitness.fitnessDate,
+          set: _trainingSetItems,
+        );
+
+    setState(() {
+      isEdit = false;
+      widget.fitness.maxCount = newMaxCount;
+      widget.fitness.maxWeight = newMaxWeight;
+      widget.fitness.set = _trainingSetItems
+          .map(
+            (item) => TrainingSet(
+              id: 0,
+              weight: double.parse(item["enteredWeight"]!),
+              count: int.parse(item["enteredCount"]!),
+            ),
+          )
+          .toList();
+    });
   }
 
   Widget ViewerSection() {

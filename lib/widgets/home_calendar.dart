@@ -218,7 +218,7 @@ class _HomeCalendarState extends ConsumerState<HomeCalendar>
                           height: 30,
                           padding: const EdgeInsets.symmetric(
                             vertical: 5,
-                            horizontal: 7,
+                            horizontal: 2,
                           ),
                           child: Text(
                             day.day.toString(),

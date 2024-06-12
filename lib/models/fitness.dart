@@ -10,10 +10,32 @@ class Fitness {
     required this.set,
   });
 
+  Fitness copyWith({
+    required int id,
+    required String name,
+    required double maxWeight,
+    required int maxCount,
+    required int fitnessDate,
+    required List<TrainingSet> set,
+  }) {
+    return Fitness(
+      id: id,
+      name: name,
+      maxWeight: maxWeight,
+      maxCount: maxCount,
+      fitnessDate: fitnessDate,
+      set: set,
+    );
+  }
+
+  void update({required int id}) {
+    id = id;
+  }
+
   final int id;
   final String name;
-  final double maxWeight;
-  final int maxCount;
+  double maxWeight;
+  int maxCount;
   final int fitnessDate;
-  final List<TrainingSet> set;
+  List<TrainingSet> set;
 }

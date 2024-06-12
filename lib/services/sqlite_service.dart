@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:progressive_overload/models/fitness.dart';
 import 'package:progressive_overload/models/training_set.dart';
 import 'package:sqflite/sqflite.dart';
@@ -9,8 +8,8 @@ class SQLiteService {
   Future<Database> init() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'progressive_overload.db');
-
     // await deleteDatabase(path);
+
     Database database = await openDatabase(
       path,
       version: 1,
@@ -123,6 +122,22 @@ class SQLiteService {
     return fitnessList;
   }
 
+  Future<void> updateFitness(
+      {required int id,
+      required double maxWeight,
+      required int maxCount}) async {
+    final db = await init();
+    await db.update(
+      'fitness_list',
+      {
+        "maxWeight": maxWeight,
+        "maxCount": maxCount,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<void> deleteFitness(int fitness_id) async {
     final db = await init();
     await db.delete(
@@ -133,7 +148,7 @@ class SQLiteService {
   }
 
   Future<void> insertTrainingSet(
-      int fitnessId, List<Map<String, String>> set) async {
+      int fitness_id, List<Map<String, String>> set) async {
     final db = await init();
     final Batch batch = db.batch();
 
@@ -142,11 +157,47 @@ class SQLiteService {
       batch.insert('training_set', {
         "weight": item["enteredWeight"]!,
         "count": item["enteredWeight"]!,
-        "fitness_id": fitnessId,
+        "fitness_id": fitness_id,
       });
     }
 
     await batch.commit();
+  }
+
+  Future<List<TrainingSet>> updateTrainingSet(
+      int fitness_id, List<Map<String, String>> set) async {
+    final db = await init();
+    final Batch batch = db.batch();
+
+    await db.delete(
+      'training_set',
+      where: 'fitness_id = ?',
+      whereArgs: [fitness_id],
+    );
+
+    for (int index = 0; index < set.length; index++) {
+      final Map<String, String> item = set[index];
+      batch.insert('training_set', {
+        "weight": item["enteredWeight"]!,
+        "count": item["enteredWeight"]!,
+        "fitness_id": fitness_id,
+      });
+    }
+
+    await batch.commit();
+
+    final raw = await db.rawQuery(
+        'SELECT * FROM training_set T WHERE T.fitness_id = $fitness_id');
+    final list = raw
+        .map(
+          (item) => TrainingSet(
+              id: item["id"] as int,
+              weight: item['weight'] as double,
+              count: item['count'] as int),
+        )
+        .toList();
+
+    return list;
   }
 
   Future<List<Map<String, dynamic>>> getTrainingSet() async {
