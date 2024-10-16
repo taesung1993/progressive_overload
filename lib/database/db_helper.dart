@@ -27,6 +27,10 @@ class DBHelper {
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
+      PRAGMA foreign_keys = ON;
+    ''');
+
+    await db.execute('''
       CREATE TABLE workout (
         id INTERGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
