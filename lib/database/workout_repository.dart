@@ -3,20 +3,29 @@ import 'package:progressive_overload/model/workout_model.dart';
 import 'package:progressive_overload/model/set_model.dart';
 
 class WorkoutRepository {
-  final dbHelper = DBHelper.dbHero;
+  final _dbHelper = DBHelper.dbHero;
 
-  Future<int> insert(Workout workout) async {
-    final db = await dbHelper.database;
-    return await db.insert('workout', workout.toMap());
+  Future<int> insert(Workout workout, List<Set> sets) async {
+    final db = await _dbHelper.database;
+
+    return await db.transaction((txn) async {
+      int workoutId = await txn.insert('workout', workout.toMap());
+
+      sets.forEach((set) async {
+        await txn.insert('set', set.toMap(workoutId));
+      });
+
+      return workoutId;
+    });
   }
 
-  Future<List<Workout>> getWorkouts(String? where) async {
+  Future<List<Workout>> getWorkouts({String? name}) async {
     /**
      * To do
      * 1. 이름 별 검색 필요 (최근 기록)
      * 2. 캘린더를 채우기 위한 날짜별 검색 필요(단, 새로운 함수를 만들어야 함)
      */
-    final db = await dbHelper.database;
+    final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
       SELECT 
         w.id as 'id', 
@@ -36,10 +45,11 @@ class WorkoutRepository {
               ELSE NULL
             END
           ), '[]'
-        ) as 'sets',
+        ) as 'sets'
         FROM 'workout' w 
-        JOIN 
-        'set' s ON w.id = s.workout_id 
+        LEFT JOIN 
+        'set' s ON w.id = s.workout_id
+        ${name != null ? "WHERE w.name = '${name}'" : ''}
         GROUP BY w.id;
       ''');
 
@@ -53,10 +63,11 @@ class WorkoutRepository {
           Map<String, dynamic> set = maps[i]['sets'][j];
           return Set(
             id: set['id'],
-            workoutId: set['workout_id'],
             reps: set['reps'],
             weight: set['weight'],
-            createdAt: DateTime.parse(set['created_at']),
+            createdAt: DateTime.parse(
+              set['created_at'],
+            ),
           );
         }),
       );
@@ -64,7 +75,7 @@ class WorkoutRepository {
   }
 
   Future<int> delete(int id) async {
-    final db = await dbHelper.database;
+    final db = await _dbHelper.database;
     return await db.delete(
       'workout',
       where: 'id = ?',
