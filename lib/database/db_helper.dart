@@ -18,6 +18,8 @@ class DBHelper {
 
   Future<Database> _initDatabase() async {
     final path = join(await getDatabasesPath(), 'progressive_overload.db');
+
+    await deleteDatabase(path);
     return await openDatabase(
       path,
       version: 1,
@@ -32,7 +34,7 @@ class DBHelper {
 
     await db.execute('''
       CREATE TABLE workout (
-        id INTERGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         workout_date DATE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -40,10 +42,10 @@ class DBHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE set (
-        id INTERGER PRIMARY KEY AUTOINCREMENT,
-        workout_id INTERGER,
-        reps INTERGER,
+      CREATE TABLE 'set' (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        workout_id INTEGER,
+        reps INTEGER,
         weight DECIMAL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (workout_id) REFERENCES workout(id)
