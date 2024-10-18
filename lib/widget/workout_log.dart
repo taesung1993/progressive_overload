@@ -4,30 +4,55 @@ import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
 
 class WorkoutLog extends StatelessWidget {
-  const WorkoutLog({Key? key}) : super(key: key);
+  final String name;
+  final int sets;
+
+  const WorkoutLog({required this.name, required this.sets, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 52,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Typo.TextOneMedium('체스트 프레스', color: black),
-                Typo.TextOneMedium('5세트', color: black),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          SvgPicture.asset(
-            'assets/svg/chevron_right.svg',
+    return Ink(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.08),
+            offset: Offset(1, 2),
+            blurRadius: 11,
+            spreadRadius: 0,
           ),
         ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        splashColor: Colors.transparent,
+        highlightColor: primary3Color,
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          padding:
+              const EdgeInsets.only(left: 16, right: 8, top: 16, bottom: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Typo.TextOneMedium(name, color: black),
+                    Typo.TextOneMedium('$sets 세트', color: black),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              SvgPicture.asset(
+                'assets/svg/chevron_right.svg',
+              ),
+            ],
+          ),
+        ),
+        onTap: () {},
       ),
     );
   }
