@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:progressive_overload/database/db_helper.dart';
 import 'package:progressive_overload/model/workout_model.dart';
 import 'package:progressive_overload/model/set_model.dart';
@@ -40,6 +42,7 @@ class WorkoutRepository {
                   'id', s.id,
                   'workout_id', s.workout_id,
                   'reps', s.reps,
+                  'weight', s.weight,
                   'created_at', s.created_at
                 )
               ELSE NULL
@@ -54,23 +57,24 @@ class WorkoutRepository {
       ''');
 
     return List.generate(maps.length, (i) {
+      List<dynamic> sets = jsonDecode('[${maps[i]['sets']}]');
+
       return Workout(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        workoutDate: DateTime.parse(maps[i]['workout_date']),
-        createdAt: DateTime.parse(maps[i]['created_at']),
-        sets: List.generate(maps[i]['sets'].length, (j) {
-          Map<String, dynamic> set = maps[i]['sets'][j];
-          return Set(
-            id: set['id'],
-            reps: set['reps'],
-            weight: set['weight'],
-            createdAt: DateTime.parse(
-              set['created_at'],
-            ),
-          );
-        }),
-      );
+          id: maps[i]['id'],
+          name: maps[i]['name'],
+          workoutDate: DateTime.parse(maps[i]['workout_date']),
+          createdAt: DateTime.parse(maps[i]['created_at']),
+          sets: List.generate(sets.length, (j) {
+            final weight = (sets[j]['weight']).toDouble();
+            final createdAt = DateTime.parse(sets[j]['created_at']);
+
+            return Set(
+              id: sets[j]['id'],
+              reps: sets[j]['reps'],
+              weight: weight,
+              createdAt: createdAt,
+            );
+          }));
     });
   }
 
