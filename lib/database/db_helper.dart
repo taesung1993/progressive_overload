@@ -46,7 +46,7 @@ class DBHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         workout_id INTEGER,
         reps INTEGER,
-        weight DECIMAL,
+        weight DECIMAL(3, 1),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (workout_id) REFERENCES workout(id)
       )
