@@ -2,12 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
+import 'package:progressive_overload/model/set_model.dart';
+import 'package:progressive_overload/widget/workout_overview_bottom_sheet.dart';
 
 class WorkoutLog extends StatelessWidget {
   final String name;
-  final int sets;
+  final List<Set> sets;
 
   const WorkoutLog({required this.name, required this.sets, super.key});
+
+  void showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return WorkoutOverviewBottomSheet(
+          name: name,
+          sets: sets,
+        );
+      },
+    );
+  }
+
+  get lengthOfSet {
+    return sets.length;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +59,7 @@ class WorkoutLog extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Typo.TextOneMedium(name, color: black),
-                    Typo.TextOneMedium('$sets 세트', color: black),
+                    Typo.TextOneMedium('$lengthOfSet 세트', color: black),
                   ],
                 ),
               ),
@@ -52,7 +70,7 @@ class WorkoutLog extends StatelessWidget {
             ],
           ),
         ),
-        onTap: () {},
+        onTap: () => showBottomSheet(context),
       ),
     );
   }
