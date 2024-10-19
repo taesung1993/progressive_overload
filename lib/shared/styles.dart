@@ -16,6 +16,11 @@ const TextStyle head3Bold = TextStyle(
   fontWeight: FontWeight.bold,
 );
 
+const TextStyle head3Medium = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w500,
+);
+
 const TextStyle text1Medium = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.w500,

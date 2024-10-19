@@ -12,6 +12,8 @@ class Typo extends StatelessWidget {
       : style = head2Bold.copyWith(color: color);
   Typo.headingThreeBold(this.text, {Color color = primary1Color})
       : style = head3Bold.copyWith(color: color);
+  Typo.headingThreeMedium(this.text, {Color color = primary1Color})
+      : style = head3Medium.copyWith(color: color);
   Typo.TextOneMedium(this.text, {Color color = primary1Color})
       : style = text1Medium.copyWith(color: color);
   Typo.TextOneRegular(this.text, {Color color = primary1Color})
