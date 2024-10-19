@@ -5,14 +5,14 @@ class Workout {
   String name;
   DateTime workoutDate;
   DateTime createdAt;
-  List<Set> sets;
+  List<Set>? sets;
 
   Workout({
     this.id,
+    this.sets,
     required this.name,
     required this.workoutDate,
     required this.createdAt,
-    required this.sets,
   });
 
   Map<String, dynamic> toMap() {
