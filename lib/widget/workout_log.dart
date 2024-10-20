@@ -7,9 +7,14 @@ import 'package:progressive_overload/widget/workout_overview_bottom_sheet.dart';
 
 class WorkoutLog extends StatelessWidget {
   final String name;
+  final int workoutId;
   final List<Set> sets;
 
-  const WorkoutLog({required this.name, required this.sets, super.key});
+  const WorkoutLog(
+      {required this.name,
+      required this.workoutId,
+      required this.sets,
+      super.key});
 
   void showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -17,6 +22,7 @@ class WorkoutLog extends StatelessWidget {
       builder: (BuildContext context) {
         return WorkoutOverviewBottomSheet(
           name: name,
+          workoutId: workoutId,
           sets: sets,
         );
       },
