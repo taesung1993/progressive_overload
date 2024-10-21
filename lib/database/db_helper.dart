@@ -19,7 +19,7 @@ class DBHelper {
   Future<Database> _initDatabase() async {
     final path = join(await getDatabasesPath(), 'progressive_overload.db');
 
-    await deleteDatabase(path);
+    // await deleteDatabase(path);
     return await openDatabase(
       path,
       version: 1,
@@ -44,6 +44,7 @@ class DBHelper {
     await db.execute('''
       CREATE TABLE 'set' (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sequence INTEGER,
         workout_id INTEGER,
         reps INTEGER,
         weight DECIMAL(3, 1),

@@ -9,21 +9,26 @@ class WorkoutLog extends StatelessWidget {
   final String name;
   final int workoutId;
   final List<Set> sets;
+  final Function()? load;
 
-  const WorkoutLog(
-      {required this.name,
-      required this.workoutId,
-      required this.sets,
-      super.key});
+  const WorkoutLog({
+    required this.name,
+    required this.workoutId,
+    required this.sets,
+    this.load,
+    super.key,
+  });
 
   void showBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return WorkoutOverviewBottomSheet(
           name: name,
           workoutId: workoutId,
           sets: sets,
+          load: load,
         );
       },
     );

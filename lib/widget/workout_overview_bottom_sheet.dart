@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/model/set_model.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/RepsTextField.dart';
@@ -13,11 +14,13 @@ class WorkoutOverviewBottomSheet extends StatefulWidget {
   final String name;
   final int workoutId;
   final List<Set> sets;
+  final Function()? load;
 
   const WorkoutOverviewBottomSheet({
     required this.name,
     required this.workoutId,
     required this.sets,
+    this.load,
     super.key,
   });
 
@@ -30,8 +33,17 @@ class _WorkoutOverviewBottomSheetState
     extends State<WorkoutOverviewBottomSheet> {
   bool isEdit = false;
   ScrollController _scrollController = ScrollController();
+  late List<Set> copiedSets;
+  final repository = WorkoutRepository();
 
   String get editableText => isEdit ? '편집취소' : '편집하기';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    copiedSets = List.from(widget.sets);
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -43,14 +55,16 @@ class _WorkoutOverviewBottomSheetState
     setState(() {
       isEdit = !isEdit;
       if (!isEdit) {
-        widget.sets.retainWhere((item) => item.id != null);
+        copiedSets = List.from(widget.sets);
       }
     });
   }
 
   void addSet() {
     setState(() {
-      widget.sets.add(Set(weight: 0, reps: 0));
+      copiedSets.add(
+        Set(weight: 0, reps: 0, sequence: copiedSets.length + 1),
+      );
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -62,220 +76,266 @@ class _WorkoutOverviewBottomSheetState
     });
   }
 
+  void deleteSet(int index) {
+    if (isEdit) {
+      setState(() {
+        copiedSets.removeAt(index);
+      });
+    }
+  }
+
+  void saveSet() async {
+    List<Set> newSets = List.from(copiedSets);
+
+    for (int i = 0; i < newSets.length; i++) {
+      newSets[i].sequence = i + 1;
+    }
+
+    await repository.replaceSets(newSets, widget.workoutId);
+    await repository.getWorkouts();
+
+    if (widget.load != null) {
+      widget.load!();
+    }
+
+    setState(() {
+      isEdit = false;
+      copiedSets = List.from(newSets);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double height = max(MediaQuery.of(context).size.height, 534);
 
-    return Container(
-      height: height,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20, top: 54),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Typo.headingOneBold(
-                  widget.name,
-                  color: black,
-                ),
-                TextButton(
-                  onPressed: toggleEdit,
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
+    return Padding(
+      padding: MediaQuery.of(context).viewInsets,
+      child: SizedBox(
+        height: 534,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 54),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Typo.headingOneBold(
+                    widget.name,
+                    color: black,
                   ),
-                  child: Typo.TextOneRegular(editableText, color: black),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.only(
-                top: 30,
-                bottom: 40,
-                left: 16,
-                right: 16,
+                  TextButton(
+                    onPressed: toggleEdit,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: Typo.TextOneRegular(editableText, color: black),
+                  ),
+                ],
               ),
-              child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  return SingleChildScrollView(
-                    controller: _scrollController,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
-                      ),
-                      child: IntrinsicHeight(
-                        child: Column(
-                          children: [
-                            for (int i = 0; i < widget.sets.length; i++) ...[
-                              if (i > 0) ...[
-                                const SizedBox(
+            ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(
+                  top: 30,
+                  bottom: 40,
+                  left: 16,
+                  right: 16,
+                ),
+                child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    return SingleChildScrollView(
+                      controller: _scrollController,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              for (int i = 0; i < copiedSets.length; i++) ...[
+                                if (i > 0) ...[
+                                  const SizedBox(
+                                    width: double.infinity,
+                                    height: 10,
+                                  ),
+                                ],
+                                Container(
+                                  key: ValueKey(copiedSets[i].sequence),
                                   width: double.infinity,
-                                  height: 10,
-                                ),
-                              ],
-                              Container(
-                                width: double.infinity,
-                                height: 52,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: white,
-                                  borderRadius: BorderRadius.circular(7),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.08),
-                                      offset: Offset(1, 2),
-                                      blurRadius: 11,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 60,
-                                      height: 26,
-                                      decoration: BoxDecoration(
-                                        color: black,
-                                        borderRadius: BorderRadius.circular(6),
+                                  height: 52,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: white,
+                                    borderRadius: BorderRadius.circular(7),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.08),
+                                        offset: Offset(1, 2),
+                                        blurRadius: 11,
+                                        spreadRadius: 0,
                                       ),
-                                      child: Center(
-                                        child: Typo.TextTwoMedium(
-                                          '${i + 1} 세트',
-                                          color: white,
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 60,
+                                        height: 26,
+                                        decoration: BoxDecoration(
+                                          color: black,
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        child: Center(
+                                          child: Typo.TextTwoMedium(
+                                            '${i + 1} 세트',
+                                            color: white,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    WeightTextField(
-                                      initialValue:
-                                          widget.sets[i].weight.toString(),
-                                      enabled: isEdit,
-                                    ),
-                                    RepstTextField(
-                                      initialValue:
-                                          widget.sets[i].reps.toString(),
-                                      enabled: isEdit,
-                                    ),
-                                    Material(
-                                      child: InkWell(
-                                        splashColor: Colors.transparent,
-                                        highlightColor: primary2Color,
-                                        borderRadius: BorderRadius.circular(6),
-                                        child: SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Center(
-                                            child: SvgPicture.asset(
-                                              'assets/svg/trash.svg',
+                                      WeightTextField(
+                                        initialValue:
+                                            copiedSets[i].weight.toString(),
+                                        enabled: isEdit,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            copiedSets[i].weight = double.parse(
+                                              value,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      RepstTextField(
+                                        initialValue:
+                                            copiedSets[i].reps.toString(),
+                                        enabled: isEdit,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            copiedSets[i].reps = int.parse(
+                                              value,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      Material(
+                                        child: InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: primary2Color,
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          onTap: () => deleteSet(i),
+                                          child: SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: Center(
+                                              child: SvgPicture.asset(
+                                                'assets/svg/trash.svg',
+                                              ),
                                             ),
                                           ),
                                         ),
-                                        onTap: () {},
-                                      ),
-                                    )
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ]
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 40),
+              child: isEdit
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              color: black,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: addSet,
+                              child: SizedBox(
+                                height: 52,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/svg/plus.svg',
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Typo.headingThreeBold(
+                                      '세트 추가',
+                                      color: white,
+                                    ),
                                   ],
                                 ),
                               ),
-                            ]
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 40),
-            child: isEdit
-                ? Row(
-                    children: [
-                      Expanded(
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            color: black,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(8),
-                            onTap: addSet,
-                            child: SizedBox(
-                              height: 52,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svg/plus.svg',
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Typo.headingThreeBold(
-                                    '세트 추가',
-                                    color: white,
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            color: primary1Color,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              height: 52,
-                              child: Center(
-                                child: Typo.headingThreeBold(
-                                  '저장하기',
-                                  color: white,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              color: primary1Color,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: saveSet,
+                              child: SizedBox(
+                                height: 52,
+                                child: Center(
+                                  child: Typo.headingThreeBold(
+                                    '저장하기',
+                                    color: white,
+                                  ),
                                 ),
                               ),
                             ),
-                            onTap: () {
-                              print('삭제합니다.');
-                            },
                           ),
                         ),
+                      ],
+                    )
+                  : Ink(
+                      decoration: BoxDecoration(
+                        color: red1,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
-                  )
-                : Ink(
-                    decoration: BoxDecoration(
-                      color: red1,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        width: double.infinity,
-                        height: 52,
-                        child: Center(
-                          child: Typo.headingThreeBold(
-                            '운동 삭제',
-                            color: white,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          width: double.infinity,
+                          height: 52,
+                          child: Center(
+                            child: Typo.headingThreeBold(
+                              '운동 삭제',
+                              color: white,
+                            ),
                           ),
                         ),
+                        onTap: () {
+                          print('삭제합니다.');
+                        },
                       ),
-                      onTap: () {
-                        print('삭제합니다.');
-                      },
                     ),
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:progressive_overload/database/workout_repository.dart';
-import 'package:progressive_overload/widget/typo.dart';
-import 'package:progressive_overload/widget/workout_log.dart';
+import 'package:progressive_overload/screen/workout_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,12 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       home: SafeArea(
         child: Scaffold(
-          body: Column(
-            children: [
-              WorkoutLog(),
-              WorkoutLog(),
-            ],
-          ),
+          body: WorkoutScreen(),
         ),
       ),
     );

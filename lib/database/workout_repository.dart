@@ -43,6 +43,7 @@ class WorkoutRepository {
                   'workout_id', s.workout_id,
                   'reps', s.reps,
                   'weight', s.weight,
+                  'sequence', s.sequence,
                   'created_at', s.created_at
                 )
               ELSE NULL
@@ -60,11 +61,13 @@ class WorkoutRepository {
       List<dynamic> sets = jsonDecode('[${maps[i]['sets']}]');
 
       return Workout(
-          id: maps[i]['id'],
-          name: maps[i]['name'],
-          workoutDate: DateTime.parse(maps[i]['workout_date']),
-          createdAt: DateTime.parse(maps[i]['created_at']),
-          sets: List.generate(sets.length, (j) {
+        id: maps[i]['id'],
+        name: maps[i]['name'],
+        workoutDate: DateTime.parse(maps[i]['workout_date']),
+        createdAt: DateTime.parse(maps[i]['created_at']),
+        sets: List.generate(
+          sets.length,
+          (j) {
             final weight = (sets[j]['weight']).toDouble();
             final createdAt = DateTime.parse(sets[j]['created_at']);
 
@@ -73,8 +76,11 @@ class WorkoutRepository {
               reps: sets[j]['reps'],
               weight: weight,
               createdAt: createdAt,
+              sequence: sets[j]['sequence'],
             );
-          }));
+          },
+        ),
+      );
     });
   }
 
@@ -85,5 +91,19 @@ class WorkoutRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<int> replaceSets(List<Set> sets, int workoutId) async {
+    final db = await _dbHelper.database;
+
+    return await db.transaction((txn) async {
+      await txn.delete('set', where: 'workout_id = ?', whereArgs: [workoutId]);
+
+      sets.forEach((set) async {
+        await txn.insert('set', set.toMap(workoutId));
+      });
+
+      return workoutId;
+    });
   }
 }

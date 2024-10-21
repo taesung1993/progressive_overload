@@ -5,7 +5,14 @@ import 'package:progressive_overload/widget/typo.dart';
 class WeightTextField extends StatefulWidget {
   final String? initialValue;
   final bool? enabled;
-  WeightTextField({this.initialValue, this.enabled, super.key});
+  final Function(String value)? onChanged;
+
+  const WeightTextField({
+    this.initialValue,
+    this.enabled,
+    this.onChanged,
+    super.key,
+  });
 
   @override
   _WeightTextFieldState createState() => _WeightTextFieldState();
@@ -42,9 +49,14 @@ class _WeightTextFieldState extends State<WeightTextField> {
             enabled: widget.enabled ?? true,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
+            onChanged: (value) {
+              if (widget.onChanged != null) {
+                widget.onChanged!(value);
+              }
+            },
             decoration: InputDecoration(
               isDense: false,
-              contentPadding: EdgeInsets.all(0),
+              contentPadding: const EdgeInsets.all(0),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),
                 borderSide: const BorderSide(color: lightgrey),
