@@ -81,7 +81,80 @@ class _WorkoutOverviewBottomSheetState
       setState(() {
         copiedSets.removeAt(index);
       });
+      return;
     }
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            insetPadding: EdgeInsets.zero,
+            clipBehavior: Clip.hardEdge,
+            backgroundColor: white,
+            child: SizedBox(
+              width: 288,
+              height: 133,
+              child: Column(
+                children: [
+                  Container(
+                    width: 288,
+                    height: 86,
+                    padding: const EdgeInsets.only(
+                      top: 20,
+                      left: 16,
+                      right: 16,
+                      bottom: 20,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Typo.headingThreeBold("운동 삭제", color: black),
+                        Typo.TextOneRegular('운동 기록을 삭제하시겠습니까?', color: black),
+                      ],
+                    ),
+                  ),
+                  Container(height: 1, width: 288, color: darkgrey),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Ink(
+                          height: 46,
+                          child: InkWell(
+                            child: Center(
+                              child: Typo.headingThreeMedium('취소',
+                                  color: primary1Color),
+                            ),
+                            onTap: () {},
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 46,
+                        width: 1,
+                        color: darkgrey,
+                      ),
+                      Expanded(
+                        child: Ink(
+                          height: 46,
+                          child: InkWell(
+                            child: Center(
+                              child: Typo.headingThreeMedium('삭제하기',
+                                  color: primary1Color),
+                            ),
+                            onTap: () {},
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   void saveSet() async {
