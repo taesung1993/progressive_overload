@@ -45,14 +45,6 @@ class WorkoutLog extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.08),
-            offset: Offset(1, 2),
-            blurRadius: 11,
-            spreadRadius: 0,
-          ),
-        ],
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
@@ -63,6 +55,17 @@ class WorkoutLog extends StatelessWidget {
           height: 52,
           padding:
               const EdgeInsets.only(left: 16, right: 8, top: 16, bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.09),
+                offset: const Offset(1, 2),
+                blurRadius: 11,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
