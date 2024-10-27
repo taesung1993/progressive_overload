@@ -84,13 +84,13 @@ class WorkoutRepository {
     });
   }
 
-  Future<int> delete(int id) async {
+  Future<void> deleteWorkout(int id) async {
     final db = await _dbHelper.database;
-    return await db.delete(
-      'workout',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+
+    return await db.transaction((txn) async {
+      await txn.delete('set', where: 'workout_id = ?', whereArgs: [id]);
+      await txn.delete('workout', where: 'id = ?', whereArgs: [id]);
+    });
   }
 
   Future<int> replaceSets(List<Set> sets, int workoutId) async {
