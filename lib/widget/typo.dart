@@ -18,6 +18,8 @@ class Typo extends StatelessWidget {
       : style = text1Medium.copyWith(color: color);
   Typo.TextOneRegular(this.text, {Color color = primary1Color})
       : style = text1Regular.copyWith(color: color);
+  Typo.TextOneBold(this.text, {Color color = primary1Color})
+      : style = text1Bold.copyWith(color: color);
   Typo.TextTwoMedium(this.text, {Color color = primary1Color})
       : style = text2Medium.copyWith(color: color);
 

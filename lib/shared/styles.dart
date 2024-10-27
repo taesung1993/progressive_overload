@@ -26,6 +26,11 @@ const TextStyle text1Medium = TextStyle(
   fontWeight: FontWeight.w500,
 );
 
+const TextStyle text1Bold = TextStyle(
+  fontSize: 14,
+  fontWeight: FontWeight.w600,
+);
+
 const TextStyle text1Regular = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.w400,
