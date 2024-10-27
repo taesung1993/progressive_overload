@@ -55,6 +55,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     setState(() {});
   }
 
+  void openAddBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -150,7 +160,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                             'assets/svg/add.svg',
                           ),
                         ),
-                        onTap: () {},
+                        onTap: openAddBottomSheet,
                       ),
                     ),
                   ),
