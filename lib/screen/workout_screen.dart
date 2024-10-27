@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
 
 import 'package:progressive_overload/model/workout_model.dart';
-import 'package:progressive_overload/model/set_model.dart';
+import 'package:progressive_overload/widget/empty_workout.dart';
 
 import 'package:progressive_overload/widget/workout_log.dart';
 
@@ -72,7 +72,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
           if (snapshot.data!.isEmpty) {
             return const Center(
-              child: Text('데이터가 없습니다.'),
+              child: EmptyWorkout(),
             );
           }
 
