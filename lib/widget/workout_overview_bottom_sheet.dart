@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/model/set_model.dart';
 import 'package:progressive_overload/shared/styles.dart';
-import 'package:progressive_overload/widget/RepsTextField.dart';
-import 'package:progressive_overload/widget/WeightTextField.dart';
+import 'package:progressive_overload/widget/reps_text_field.dart';
+import 'package:progressive_overload/widget/weight_text_field.dart';
+import 'package:progressive_overload/widget/confirm_dialog.dart';
 import 'package:progressive_overload/widget/typo.dart';
 
 class WorkoutOverviewBottomSheet extends StatefulWidget {
@@ -15,12 +15,14 @@ class WorkoutOverviewBottomSheet extends StatefulWidget {
   final int workoutId;
   final List<Set> sets;
   final Function()? load;
+  final Function()? close;
 
   const WorkoutOverviewBottomSheet({
     required this.name,
     required this.workoutId,
     required this.sets,
     this.load,
+    this.close,
     super.key,
   });
 
@@ -51,12 +53,36 @@ class _WorkoutOverviewBottomSheetState
     super.dispose();
   }
 
+  void deleteWorkout() {
+    onConfirm() async {
+      await repository.deleteWorkout(widget.workoutId);
+
+      if (widget.load != null) {
+        widget.load!();
+      }
+
+      if (widget.close != null) {
+        widget.close!();
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return ConfirmDialog(
+          title: '운동 삭제',
+          description: '운동을 삭제하시겠습니까?',
+          onConfirm: onConfirm,
+        );
+      },
+    );
+  }
+
   void toggleEdit() {
     setState(() {
       isEdit = !isEdit;
-      if (!isEdit) {
-        copiedSets = List.from(widget.sets);
-      }
+      copiedSets = List.from(widget.sets);
+      print(widget.sets.last.weight);
     });
   }
 
@@ -84,77 +110,36 @@ class _WorkoutOverviewBottomSheetState
       return;
     }
 
+    onConfirm() async {
+      List<Set> newSets = List.from(copiedSets);
+
+      newSets.removeAt(index);
+
+      for (int i = 0; i < newSets.length; i++) {
+        newSets[i].sequence = i + 1;
+      }
+
+      await repository.replaceSets(newSets, widget.workoutId);
+
+      if (widget.load != null) {
+        widget.load!();
+      }
+
+      setState(() {
+        copiedSets = List.from(newSets);
+      });
+    }
+
     showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            insetPadding: EdgeInsets.zero,
-            clipBehavior: Clip.hardEdge,
-            backgroundColor: white,
-            child: SizedBox(
-              width: 288,
-              height: 133,
-              child: Column(
-                children: [
-                  Container(
-                    width: 288,
-                    height: 86,
-                    padding: const EdgeInsets.only(
-                      top: 20,
-                      left: 16,
-                      right: 16,
-                      bottom: 20,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Typo.headingThreeBold("운동 삭제", color: black),
-                        Typo.TextOneRegular('운동 기록을 삭제하시겠습니까?', color: black),
-                      ],
-                    ),
-                  ),
-                  Container(height: 1, width: 288, color: darkgrey),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Ink(
-                          height: 46,
-                          child: InkWell(
-                            child: Center(
-                              child: Typo.headingThreeMedium('취소',
-                                  color: primary1Color),
-                            ),
-                            onTap: () {},
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 46,
-                        width: 1,
-                        color: darkgrey,
-                      ),
-                      Expanded(
-                        child: Ink(
-                          height: 46,
-                          child: InkWell(
-                            child: Center(
-                              child: Typo.headingThreeMedium('삭제하기',
-                                  color: primary1Color),
-                            ),
-                            onTap: () {},
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+      context: context,
+      builder: (context) {
+        return ConfirmDialog(
+          title: '세트 삭제',
+          description: '해당 세트를 삭제하시겠습니까?',
+          onConfirm: onConfirm,
+        );
+      },
+    );
   }
 
   void saveSet() async {
@@ -234,7 +219,7 @@ class _WorkoutOverviewBottomSheetState
                                   ),
                                 ],
                                 Container(
-                                  key: ValueKey(copiedSets[i].sequence),
+                                  key: ObjectKey(copiedSets[i]),
                                   width: double.infinity,
                                   height: 52,
                                   padding: const EdgeInsets.symmetric(
@@ -302,7 +287,9 @@ class _WorkoutOverviewBottomSheetState
                                           highlightColor: primary2Color,
                                           borderRadius:
                                               BorderRadius.circular(6),
-                                          onTap: () => deleteSet(i),
+                                          onTap: () => copiedSets.length > 1
+                                              ? deleteSet(i)
+                                              : deleteWorkout(),
                                           child: SizedBox(
                                             width: 24,
                                             height: 24,
@@ -391,7 +378,8 @@ class _WorkoutOverviewBottomSheetState
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(8),
-                        child: Container(
+                        onTap: deleteWorkout,
+                        child: SizedBox(
                           width: double.infinity,
                           height: 52,
                           child: Center(
@@ -401,9 +389,6 @@ class _WorkoutOverviewBottomSheetState
                             ),
                           ),
                         ),
-                        onTap: () {
-                          print('삭제합니다.');
-                        },
                       ),
                     ),
             ),

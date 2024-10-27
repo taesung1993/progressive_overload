@@ -29,6 +29,7 @@ class WorkoutLog extends StatelessWidget {
           workoutId: workoutId,
           sets: sets,
           load: load,
+          close: () => Navigator.pop(context),
         );
       },
     );
