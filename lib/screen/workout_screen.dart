@@ -5,6 +5,7 @@ import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/model/workout_model.dart';
 import 'package:progressive_overload/model/set_model.dart';
 import 'package:progressive_overload/shared/styles.dart';
+import 'package:progressive_overload/widget/add_workout_bottom_sheet.dart';
 
 import 'package:progressive_overload/widget/empty_workout.dart';
 import 'package:progressive_overload/widget/workout_log.dart';
@@ -60,7 +61,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container();
+        return AddWorkoutBottomSheet(
+          load: load,
+        );
       },
     );
   }
@@ -155,12 +158,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                         customBorder: const CircleBorder(),
                         splashColor: Colors.transparent,
                         highlightColor: primary2Color,
+                        onTap: openAddBottomSheet,
                         child: Center(
                           child: SvgPicture.asset(
                             'assets/svg/add.svg',
                           ),
                         ),
-                        onTap: openAddBottomSheet,
                       ),
                     ),
                   ),

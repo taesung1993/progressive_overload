@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
 
-class RepstTextField extends StatefulWidget {
+class RepsTextField extends StatefulWidget {
   final String? initialValue;
   final bool? enabled;
   final Function(String text)? onChanged;
 
-  RepstTextField({
+  RepsTextField({
     this.initialValue,
     this.enabled,
     this.onChanged,
@@ -15,10 +15,10 @@ class RepstTextField extends StatefulWidget {
   });
 
   @override
-  _WeightTextFieldState createState() => _WeightTextFieldState();
+  _RepsTextFieldState createState() => _RepsTextFieldState();
 }
 
-class _WeightTextFieldState extends State<RepstTextField> {
+class _RepsTextFieldState extends State<RepsTextField> {
   final TextEditingController controller = TextEditingController();
 
   @override

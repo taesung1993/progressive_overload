@@ -1,14 +1,11 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/model/set_model.dart';
 import 'package:progressive_overload/shared/styles.dart';
-import 'package:progressive_overload/widget/reps_text_field.dart';
-import 'package:progressive_overload/widget/weight_text_field.dart';
 import 'package:progressive_overload/widget/confirm_dialog.dart';
 import 'package:progressive_overload/widget/typo.dart';
+import 'package:progressive_overload/widget/workout_set.dart';
 
 class WorkoutOverviewBottomSheet extends StatefulWidget {
   final String name;
@@ -43,7 +40,13 @@ class _WorkoutOverviewBottomSheetState
   @override
   void initState() {
     // TODO: implement initState
-    copiedSets = List.from(widget.sets);
+    copiedSets = widget.sets
+        .map((set) => Set(
+              weight: set.weight,
+              reps: set.reps,
+              sequence: set.sequence,
+            ))
+        .toList();
     super.initState();
   }
 
@@ -81,8 +84,13 @@ class _WorkoutOverviewBottomSheetState
   void toggleEdit() {
     setState(() {
       isEdit = !isEdit;
-      copiedSets = List.from(widget.sets);
-      print(widget.sets.last.weight);
+      copiedSets = widget.sets
+          .map((set) => Set(
+                weight: set.weight,
+                reps: set.reps,
+                sequence: set.sequence,
+              ))
+          .toList();
     });
   }
 
@@ -164,8 +172,6 @@ class _WorkoutOverviewBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    double height = max(MediaQuery.of(context).size.height, 534);
-
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: SizedBox(
@@ -218,92 +224,34 @@ class _WorkoutOverviewBottomSheetState
                                     height: 10,
                                   ),
                                 ],
-                                Container(
+                                WorkoutSet(
                                   key: ObjectKey(copiedSets[i]),
-                                  width: double.infinity,
-                                  height: 52,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: white,
-                                    borderRadius: BorderRadius.circular(7),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.08),
-                                        offset: Offset(1, 2),
-                                        blurRadius: 11,
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        width: 60,
-                                        height: 26,
-                                        decoration: BoxDecoration(
-                                          color: black,
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
-                                        child: Center(
-                                          child: Typo.TextTwoMedium(
-                                            '${i + 1} 세트',
-                                            color: white,
-                                          ),
-                                        ),
-                                      ),
-                                      WeightTextField(
-                                        initialValue:
-                                            copiedSets[i].weight.toString(),
-                                        enabled: isEdit,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            copiedSets[i].weight = double.parse(
-                                              value,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      RepstTextField(
-                                        initialValue:
-                                            copiedSets[i].reps.toString(),
-                                        enabled: isEdit,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            copiedSets[i].reps = int.parse(
-                                              value,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      Material(
-                                        child: InkWell(
-                                          splashColor: Colors.transparent,
-                                          highlightColor: primary2Color,
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                          onTap: () => copiedSets.length > 1
-                                              ? deleteSet(i)
-                                              : deleteWorkout(),
-                                          child: SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: Center(
-                                              child: SvgPicture.asset(
-                                                'assets/svg/trash.svg',
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
+                                  set: copiedSets[i],
+                                  sequence: i + 1,
+                                  isEdit: isEdit,
+                                  onDelete: () {
+                                    if (copiedSets.length > 1) {
+                                      deleteSet(i);
+                                      return;
+                                    }
+
+                                    deleteWorkout();
+                                  },
+                                  onRepsChanged: (value) {
+                                    setState(() {
+                                      copiedSets[i].reps = int.parse(
+                                        value.isEmpty ? '0' : value,
+                                      );
+                                    });
+                                  },
+                                  onWeightChanged: (value) {
+                                    setState(() {
+                                      copiedSets[i].weight = double.parse(
+                                        value.isEmpty ? '0' : value,
+                                      );
+                                    });
+                                  },
+                                )
                               ]
                             ],
                           ),

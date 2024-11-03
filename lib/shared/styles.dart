@@ -52,6 +52,7 @@ const Color blue1 = Color(0xff007aff);
 const Color blue2 = Color(0xff93c6fc);
 const Color black = Color(0xff000000);
 const Color darkgrey = Color(0xff9b9b9b);
+const Color drakgrey2 = Color(0xff3d3d3d);
 const Color grey = Color(0xffd5d5d5);
 const Color lightgrey = Color(0xfff2f2f2);
 const Color white = Color(0xffffffff);
