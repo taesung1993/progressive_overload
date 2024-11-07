@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/name_text_field.dart';
@@ -90,157 +91,182 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
-      child: FractionallySizedBox(
-        heightFactor: 0.9,
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32),
-              topRight: Radius.circular(32),
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          color: white,
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              height: 56,
+              padding: EdgeInsets.only(left: 4, right: 4),
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left, size: 32),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Typo.headingThreeMedium(
+                      '불러오기',
+                      color: black,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            color: white,
-          ),
-          padding: const EdgeInsets.only(
-            top: 48,
-            bottom: 40,
-          ),
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Typo.headingOneBold('운동 기록하기', color: black),
-                    Material(
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 24,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      controller: _scrollController,
+                      child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: constraints.maxHeight),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              Container(
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 8),
+                                width: double.infinity,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Typo.headingOneBold('운동 기록하기',
+                                        color: black),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20, right: 20),
+                                  child: Column(
+                                    children: [
+                                      NameTextField(
+                                        initialValue: workoutName,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            workoutName = value;
+                                          });
+                                        },
+                                      ),
+                                      const SizedBox(height: 24),
+                                      for (int i = 0; i < sets.length; i++) ...[
+                                        WorkoutSet(
+                                          key: ObjectKey(sets[i]),
+                                          set: sets[i],
+                                          sequence: i + 1,
+                                          onDelete: () {
+                                            _deleteSet(i);
+                                          },
+                                          onWeightChanged: (value) {
+                                            setState(() {
+                                              sets[i].weight = double.parse(
+                                                value.isEmpty ? '0' : value,
+                                              );
+                                            });
+                                          },
+                                          onRepsChanged: (value) {
+                                            setState(() {
+                                              sets[i].reps = int.parse(
+                                                value.isEmpty ? '0' : value,
+                                              );
+                                            });
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                      ],
+                                    ],
+                                  )),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                top: 16,
+                left: 20,
+                right: 20,
+                bottom: 40,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Material(
                       child: Ink(
+                        width: double.infinity,
+                        height: 52,
                         decoration: BoxDecoration(
-                          color: drakgrey2,
+                          color: black,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: InkWell(
-                          child: Container(
-                            width: 76,
-                            height: 36,
-                            alignment: Alignment.center,
-                            child: Typo.TextOneMedium(
-                              '최근 기록',
+                          onTap: _addSet,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/svg/plus.svg',
+                              ),
+                              const SizedBox(width: 8),
+                              Typo.headingThreeBold(
+                                '세트 추가',
+                                color: white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Material(
+                      child: Ink(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: isValid ? primary1Color : grey,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: InkWell(
+                          onTap: isValid ? () => _createWorkout(context) : null,
+                          child: Center(
+                            child: Typo.headingThreeBold(
+                              '등록하기',
                               color: white,
                             ),
                           ),
-                          onTap: () {},
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        controller: _scrollController,
-                        child: ConstrainedBox(
-                          constraints:
-                              BoxConstraints(minHeight: constraints.maxHeight),
-                          child: IntrinsicHeight(
-                            child: Column(
-                              children: [
-                                NameTextField(
-                                  initialValue: workoutName,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      workoutName = value;
-                                    });
-                                  },
-                                ),
-                                const SizedBox(height: 24),
-                                for (int i = 0; i < sets.length; i++) ...[
-                                  WorkoutSet(
-                                    key: ObjectKey(sets[i]),
-                                    set: sets[i],
-                                    sequence: i + 1,
-                                    onDelete: () {
-                                      _deleteSet(i);
-                                    },
-                                    onWeightChanged: (value) {
-                                      setState(() {
-                                        sets[i].weight = double.parse(
-                                          value.isEmpty ? '0' : value,
-                                        );
-                                      });
-                                    },
-                                    onRepsChanged: (value) {
-                                      setState(() {
-                                        sets[i].reps = int.parse(
-                                          value.isEmpty ? '0' : value,
-                                        );
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(height: 12),
-                                ],
-                                Material(
-                                  child: Ink(
-                                    width: double.infinity,
-                                    height: 52,
-                                    decoration: BoxDecoration(
-                                      color: black,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: InkWell(
-                                      onTap: _addSet,
-                                      child: Center(
-                                        child: Typo.headingThreeBold(
-                                          '세트 추가',
-                                          color: white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                ),
-                child: Material(
-                  child: Ink(
-                    width: double.infinity,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: isValid ? primary1Color : grey,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: InkWell(
-                      onTap: isValid ? () => _createWorkout(context) : null,
-                      child: Center(
-                        child: Typo.headingThreeBold(
-                          '등록하기',
-                          color: white,
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

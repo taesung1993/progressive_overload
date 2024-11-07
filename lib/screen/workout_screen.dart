@@ -60,6 +60,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      enableDrag: false,
+      useSafeArea: true,
       builder: (BuildContext context) {
         return AddWorkoutBottomSheet(
           load: load,
