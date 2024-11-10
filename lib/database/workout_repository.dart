@@ -53,12 +53,14 @@ class WorkoutRepository {
         FROM 'workout' w 
         LEFT JOIN 
         'set' s ON w.id = s.workout_id
-        ${name != null ? "WHERE w.name = '${name}'" : ''}
-        GROUP BY w.id;
+        ${name != null ? "WHERE w.name Like '%${name}%'" : ''}
+        GROUP BY w.id
+        ORDER BY w.workout_date DESC;
       ''');
 
     return List.generate(maps.length, (i) {
-      List<dynamic> sets = jsonDecode('[${maps[i]['sets']}]');
+      List<dynamic> raw = jsonDecode('[${maps[i]['sets']}]');
+      List<dynamic> sets = raw.whereType<Map>().toList();
 
       return Workout(
         id: maps[i]['id'],

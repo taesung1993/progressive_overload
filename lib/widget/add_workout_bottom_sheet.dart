@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/shared/styles.dart';
+import 'package:progressive_overload/widget/load_workout_bottom_sheet.dart';
 import 'package:progressive_overload/widget/name_text_field.dart';
 import 'package:progressive_overload/widget/typo.dart';
 import 'package:progressive_overload/model/workout_model.dart';
@@ -21,9 +22,13 @@ class AddWorkoutBottomSheet extends StatefulWidget {
 }
 
 class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
-  String workoutName = '';
   final ScrollController _scrollController = ScrollController();
-  final List<Set> sets = [];
+  List<Set> sets = [];
+  TextEditingController _nameController = TextEditingController();
+
+  String get workoutName {
+    return _nameController.text;
+  }
 
   bool get isValid {
     if (workoutName.isEmpty) {
@@ -51,14 +56,25 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
   }
 
   void _createWorkout(BuildContext context) async {
-    Workout workout = Workout(
+    Workout newWorkout = Workout(
       name: workoutName,
       workoutDate: DateTime.now(),
       createdAt: DateTime.now(),
     );
 
+    List<Set> newSets = List.generate(sets.length, (i) {
+      return Set(
+        reps: sets[i].reps,
+        weight: sets[i].weight,
+        sequence: i + 1,
+      );
+    });
+
     final repository = WorkoutRepository();
-    repository.insert(workout, sets);
+    await repository.insert(
+      newWorkout,
+      newSets,
+    );
 
     Navigator.pop(context);
 
@@ -87,6 +103,27 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
     });
   }
 
+  void _openLoadWorkoutBottomSheet() async {
+    final workout = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      enableDrag: false,
+      useSafeArea: true,
+      builder: (BuildContext context) {
+        return LoadWorkoutBottomSheet();
+      },
+    );
+
+    if (workout == null) {
+      return;
+    }
+
+    setState(() {
+      _nameController.text = workout.name;
+      sets = workout.sets;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -102,7 +139,7 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
             Container(
               width: double.infinity,
               height: 56,
-              padding: EdgeInsets.only(left: 4, right: 4),
+              padding: const EdgeInsets.only(left: 4, right: 4),
               color: Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +152,7 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
                     },
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: _openLoadWorkoutBottomSheet,
                     child: Typo.headingThreeMedium(
                       '불러오기',
                       color: black,
@@ -160,12 +197,7 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
                                   child: Column(
                                     children: [
                                       NameTextField(
-                                        initialValue: workoutName,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            workoutName = value;
-                                          });
-                                        },
+                                        controller: _nameController,
                                       ),
                                       const SizedBox(height: 24),
                                       for (int i = 0; i < sets.length; i++) ...[
@@ -205,7 +237,7 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 top: 16,
                 left: 20,
                 right: 20,

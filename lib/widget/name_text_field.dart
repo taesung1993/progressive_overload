@@ -3,14 +3,12 @@ import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
 
 class NameTextField extends StatefulWidget {
-  final String? initialValue;
+  TextEditingController controller = TextEditingController();
   final bool? enabled;
-  final Function(String value)? onChanged;
 
-  const NameTextField({
-    this.initialValue,
+  NameTextField({
     this.enabled,
-    this.onChanged,
+    required this.controller,
     super.key,
   });
 
@@ -19,20 +17,13 @@ class NameTextField extends StatefulWidget {
 }
 
 class _NameTextFieldState extends State<NameTextField> {
-  final TextEditingController controller = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
+      controller: widget.controller,
       enabled: widget.enabled ?? true,
       keyboardType: TextInputType.text,
       textAlign: TextAlign.left,
-      onChanged: (value) {
-        if (widget.onChanged != null) {
-          widget.onChanged!(value);
-        }
-      },
       decoration: InputDecoration(
         isDense: false,
         hintText: '운동 이름을 입력하세요.',

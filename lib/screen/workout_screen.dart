@@ -87,6 +87,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 );
               }
 
+              if (snapshot.hasError) {
+                final error = (snapshot.error).toString();
+
+                return Center(
+                  child: Text('에러가 발생했습니다. $error'),
+                );
+              }
+
               if (snapshot.hasData) {
                 if (snapshot.data == null) {
                   return const Center(
