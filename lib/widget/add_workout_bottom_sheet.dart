@@ -110,7 +110,7 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
       enableDrag: false,
       useSafeArea: true,
       builder: (BuildContext context) {
-        return LoadWorkoutBottomSheet();
+        return const LoadWorkoutBottomSheet();
       },
     );
 
@@ -192,41 +192,56 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
                               ),
                               const SizedBox(height: 16),
                               Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 20, right: 20),
-                                  child: Column(
-                                    children: [
-                                      NameTextField(
-                                        controller: _nameController,
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 20),
+                                child: Column(
+                                  children: [
+                                    NameTextField(
+                                      controller: _nameController,
+                                    ),
+                                    const SizedBox(height: 24),
+                                    if (sets.isEmpty)
+                                      Column(
+                                        children: [
+                                          const SizedBox(height: 48),
+                                          Typo.headingTwoBold(
+                                            '저런! 아직 세트가 없어요..',
+                                            color: black,
+                                          ),
+                                          Typo.headingThreeMedium(
+                                            '세트를 추가해서 운동을 기록해보세요.',
+                                            color: grey,
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(height: 24),
-                                      for (int i = 0; i < sets.length; i++) ...[
-                                        WorkoutSet(
-                                          key: ObjectKey(sets[i]),
-                                          set: sets[i],
-                                          sequence: i + 1,
-                                          onDelete: () {
-                                            _deleteSet(i);
-                                          },
-                                          onWeightChanged: (value) {
-                                            setState(() {
-                                              sets[i].weight = double.parse(
-                                                value.isEmpty ? '0' : value,
-                                              );
-                                            });
-                                          },
-                                          onRepsChanged: (value) {
-                                            setState(() {
-                                              sets[i].reps = int.parse(
-                                                value.isEmpty ? '0' : value,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        const SizedBox(height: 12),
-                                      ],
+                                    for (int i = 0; i < sets.length; i++) ...[
+                                      WorkoutSet(
+                                        key: ObjectKey(sets[i]),
+                                        set: sets[i],
+                                        sequence: i + 1,
+                                        onDelete: () {
+                                          _deleteSet(i);
+                                        },
+                                        onWeightChanged: (value) {
+                                          setState(() {
+                                            sets[i].weight = double.parse(
+                                              value.isEmpty ? '0' : value,
+                                            );
+                                          });
+                                        },
+                                        onRepsChanged: (value) {
+                                          setState(() {
+                                            sets[i].reps = int.parse(
+                                              value.isEmpty ? '0' : value,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      const SizedBox(height: 12),
                                     ],
-                                  )),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),

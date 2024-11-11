@@ -23,6 +23,7 @@ class WorkoutLog extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: white,
       builder: (BuildContext context) {
         return WorkoutOverviewBottomSheet(
           name: name,

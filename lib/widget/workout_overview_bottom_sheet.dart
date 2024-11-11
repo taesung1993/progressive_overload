@@ -175,46 +175,49 @@ class _WorkoutOverviewBottomSheetState
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: SizedBox(
+        width: double.infinity,
         height: 534,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 54),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Typo.headingOneBold(
-                    widget.name,
-                    color: black,
-                  ),
-                  TextButton(
-                    onPressed: toggleEdit,
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                    ),
-                    child: Typo.TextOneRegular(editableText, color: black),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(
-                  top: 30,
-                  bottom: 40,
-                  left: 16,
-                  right: 16,
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 54),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Typo.headingOneBold(
+                  widget.name,
+                  color: black,
                 ),
-                child: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    return SingleChildScrollView(
-                      controller: _scrollController,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: IntrinsicHeight(
+                TextButton(
+                  onPressed: toggleEdit,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                  ),
+                  child: Typo.TextOneRegular(editableText, color: black),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.only(
+                top: 30,
+                bottom: 40,
+              ),
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return SingleChildScrollView(
+                    controller: _scrollController,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                           child: Column(
                             children: [
                               for (int i = 0; i < copiedSets.length; i++) ...[
@@ -257,91 +260,91 @@ class _WorkoutOverviewBottomSheetState
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 40),
-              child: isEdit
-                  ? Row(
-                      children: [
-                        Expanded(
-                          child: Ink(
-                            decoration: BoxDecoration(
-                              color: black,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              onTap: addSet,
-                              child: SizedBox(
-                                height: 52,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/svg/plus.svg',
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Typo.headingThreeBold(
-                                      '세트 추가',
-                                      color: white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 40),
+            child: isEdit
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            color: black,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Ink(
-                            decoration: BoxDecoration(
-                              color: primary1Color,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              onTap: saveSet,
-                              child: SizedBox(
-                                height: 52,
-                                child: Center(
-                                  child: Typo.headingThreeBold(
-                                    '저장하기',
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: addSet,
+                            child: SizedBox(
+                              height: 52,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/svg/plus.svg',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Typo.headingThreeBold(
+                                    '세트 추가',
                                     color: white,
                                   ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            color: primary1Color,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: saveSet,
+                            child: SizedBox(
+                              height: 52,
+                              child: Center(
+                                child: Typo.headingThreeBold(
+                                  '저장하기',
+                                  color: white,
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    )
-                  : Ink(
-                      decoration: BoxDecoration(
-                        color: red1,
-                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: deleteWorkout,
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 52,
-                          child: Center(
-                            child: Typo.headingThreeBold(
-                              '운동 삭제',
-                              color: white,
-                            ),
+                    ],
+                  )
+                : Ink(
+                    decoration: BoxDecoration(
+                      color: red1,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: deleteWorkout,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: Center(
+                          child: Typo.headingThreeBold(
+                            '운동 삭제',
+                            color: white,
                           ),
                         ),
                       ),
                     ),
-            ),
-          ],
-        ),
+                  ),
+          ),
+        ]),
       ),
     );
   }

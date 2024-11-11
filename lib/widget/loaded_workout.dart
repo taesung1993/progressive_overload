@@ -4,6 +4,7 @@ import 'package:progressive_overload/model/workout_model.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
 import 'package:intl/intl.dart';
+import 'package:progressive_overload/widget/workout_detail_bottom_sheet.dart';
 
 class LoadedWorkout extends StatefulWidget {
   final Workout workout;
@@ -25,9 +26,12 @@ class _LoadedWorkoutState extends State<LoadedWorkout> {
   void _openWorkoutDetailBottomSheet() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      enableDrag: false,
+      backgroundColor: white,
       builder: (context) {
-        return Container(
-          child: Text('hello'),
+        return WorkoutDetailBottomSheet(
+          workout: widget.workout,
         );
       },
     );
