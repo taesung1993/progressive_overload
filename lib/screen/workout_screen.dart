@@ -60,6 +60,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      enableDrag: false,
+      useSafeArea: true,
       builder: (BuildContext context) {
         return AddWorkoutBottomSheet(
           load: load,
@@ -82,6 +84,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                   child: CircularProgressIndicator(),
+                );
+              }
+
+              if (snapshot.hasError) {
+                final error = (snapshot.error).toString();
+
+                return Center(
+                  child: Text('에러가 발생했습니다. $error'),
                 );
               }
 
