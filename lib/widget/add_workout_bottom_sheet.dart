@@ -206,7 +206,7 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
                                           const SizedBox(height: 48),
                                           Typo.headingTwoBold(
                                             '저런! 아직 세트가 없어요..',
-                                            color: black,
+                                            color: darkgrey,
                                           ),
                                           Typo.headingThreeMedium(
                                             '세트를 추가해서 운동을 기록해보세요.',
