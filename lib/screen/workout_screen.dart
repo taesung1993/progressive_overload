@@ -54,78 +54,86 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       color: white,
       child: Stack(
         children: [
-          Column(
-            children: [
-              WorkoutCalendar(
-                onSelectedDate: (selectedDate) {
-                  setState(() {
-                    workoutDate = selectedDate;
-                  });
-                },
+          SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height - 83,
               ),
-              Expanded(
-                child: FutureBuilder(
-                  future: getWorkouts(
-                    workoutDate: workoutDate,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WorkoutCalendar(
+                    onSelectedDate: (selectedDate) {
+                      setState(() {
+                        workoutDate = selectedDate;
+                      });
+                    },
                   ),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 32, left: 16, right: 16, bottom: 103),
+                    child: FutureBuilder(
+                      future: getWorkouts(
+                        workoutDate: workoutDate,
+                      ),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-                    if (snapshot.hasError) {
-                      final error = (snapshot.error).toString();
+                        if (snapshot.hasError) {
+                          final error = (snapshot.error).toString();
 
-                      return Center(
-                        child: Text('에러가 발생했습니다. $error'),
-                      );
-                    }
+                          return Center(
+                            child: Text('에러가 발생했습니다. $error'),
+                          );
+                        }
 
-                    if (snapshot.hasData) {
-                      if (snapshot.data == null) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
+                        if (snapshot.hasData) {
+                          if (snapshot.data == null) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
 
-                      if (snapshot.data!.isEmpty) {
-                        return const Center(
-                          child: EmptyWorkout(),
-                        );
-                      }
+                          if (snapshot.data!.isEmpty) {
+                            return const EmptyWorkout();
+                          }
 
-                      return Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            for (int i = 0; i < snapshot.data!.length; i++) ...[
-                              if (i > 0) ...[
-                                const SizedBox(
-                                  width: double.infinity,
-                                  height: 12,
+                          return Column(
+                            children: [
+                              for (int i = 0;
+                                  i < snapshot.data!.length;
+                                  i++) ...[
+                                if (i > 0) ...[
+                                  const SizedBox(
+                                    width: double.infinity,
+                                    height: 12,
+                                  ),
+                                ],
+                                WorkoutLog(
+                                  name: snapshot.data![i].name,
+                                  workoutId: snapshot.data![i].id!,
+                                  sets: snapshot.data![i].sets!,
+                                  load: load,
                                 ),
-                              ],
-                              WorkoutLog(
-                                name: snapshot.data![i].name,
-                                workoutId: snapshot.data![i].id!,
-                                sets: snapshot.data![i].sets!,
-                                load: load,
-                              ),
-                            ]
-                          ],
-                        ),
-                      );
-                    }
+                              ]
+                            ],
+                          );
+                        }
 
-                    return const Center(
-                      child: Text('데이터가 없습니다.'),
-                    );
-                  },
-                ),
+                        return const Center(
+                          child: Text('데이터가 없습니다.'),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           Positioned(
             bottom: 0,
