@@ -17,7 +17,12 @@ class Event {
 }
 
 class WorkoutCalendar extends StatefulWidget {
-  const WorkoutCalendar({Key? key}) : super(key: key);
+  Function(DateTime selectedDate)? onSelectedDate;
+
+  WorkoutCalendar({
+    Key? key,
+    this.onSelectedDate,
+  });
 
   @override
   _WorkoutCalendarState createState() => _WorkoutCalendarState();
@@ -26,7 +31,7 @@ class WorkoutCalendar extends StatefulWidget {
 class _WorkoutCalendarState extends State<WorkoutCalendar> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  CalendarFormat _calendarFormat = CalendarFormat.week;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +51,10 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
           });
+
+          if (widget.onSelectedDate != null) {
+            widget.onSelectedDate!(selectedDay);
+          }
         },
         calendarFormat: _calendarFormat,
         onFormatChanged: (format) {

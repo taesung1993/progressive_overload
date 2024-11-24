@@ -19,10 +19,13 @@ class WorkoutScreen extends StatefulWidget {
 
 class _WorkoutScreenState extends State<WorkoutScreen> {
   final repository = WorkoutRepository();
+  DateTime workoutDate = DateTime.now();
 
-  Future<List<Workout>> getWorkouts() async {
+  Future<List<Workout>> getWorkouts({DateTime? workoutDate}) async {
     final repository = WorkoutRepository();
-    return await repository.getWorkouts();
+    return await repository.getWorkouts(
+      workoutDate: workoutDate,
+    );
   }
 
   void load() {
@@ -53,64 +56,74 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         children: [
           Column(
             children: [
-              WorkoutCalendar(),
-              FutureBuilder(
-                future: getWorkouts(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    final error = (snapshot.error).toString();
-
-                    return Center(
-                      child: Text('에러가 발생했습니다. $error'),
-                    );
-                  }
-
-                  if (snapshot.hasData) {
-                    if (snapshot.data == null) {
+              WorkoutCalendar(
+                onSelectedDate: (selectedDate) {
+                  setState(() {
+                    workoutDate = selectedDate;
+                  });
+                },
+              ),
+              Expanded(
+                child: FutureBuilder(
+                  future: getWorkouts(
+                    workoutDate: workoutDate,
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
                     }
 
-                    if (snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: EmptyWorkout(),
+                    if (snapshot.hasError) {
+                      final error = (snapshot.error).toString();
+
+                      return Center(
+                        child: Text('에러가 발생했습니다. $error'),
                       );
                     }
 
-                    return Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          for (int i = 0; i < snapshot.data!.length; i++) ...[
-                            if (i > 0) ...[
-                              const SizedBox(
-                                width: double.infinity,
-                                height: 12,
-                              ),
-                            ],
-                            WorkoutLog(
-                              name: snapshot.data![i].name,
-                              workoutId: snapshot.data![i].id!,
-                              sets: snapshot.data![i].sets!,
-                              load: load,
-                            ),
-                          ]
-                        ],
-                      ),
-                    );
-                  }
+                    if (snapshot.hasData) {
+                      if (snapshot.data == null) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-                  return const Center(
-                    child: Text('데이터가 없습니다.'),
-                  );
-                },
+                      if (snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: EmptyWorkout(),
+                        );
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            for (int i = 0; i < snapshot.data!.length; i++) ...[
+                              if (i > 0) ...[
+                                const SizedBox(
+                                  width: double.infinity,
+                                  height: 12,
+                                ),
+                              ],
+                              WorkoutLog(
+                                name: snapshot.data![i].name,
+                                workoutId: snapshot.data![i].id!,
+                                sets: snapshot.data![i].sets!,
+                                load: load,
+                              ),
+                            ]
+                          ],
+                        ),
+                      );
+                    }
+
+                    return const Center(
+                      child: Text('데이터가 없습니다.'),
+                    );
+                  },
+                ),
               ),
             ],
           ),

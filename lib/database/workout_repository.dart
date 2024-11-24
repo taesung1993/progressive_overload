@@ -21,7 +21,23 @@ class WorkoutRepository {
     });
   }
 
-  Future<List<Workout>> getWorkouts({String? name}) async {
+  Future<List<Workout>> getWorkouts(
+      {String? name, DateTime? workoutDate}) async {
+    final conditions = [];
+
+    if (name != null) {
+      conditions.add("w.name Like '%${name}%'");
+    }
+
+    if (workoutDate != null) {
+      final startDate = DateTime(
+          workoutDate.year, workoutDate.month, workoutDate.day, 0, 0, 0);
+      final endDate = DateTime(
+          workoutDate.year, workoutDate.month, workoutDate.day, 23, 59, 59);
+      conditions.add(
+          "w.workout_date >= '${startDate.toIso8601String()}' AND w.workout_date <= '${endDate.toIso8601String()}'");
+    }
+
     /**
      * To do
      * 1. 이름 별 검색 필요 (최근 기록)
@@ -53,7 +69,7 @@ class WorkoutRepository {
         FROM 'workout' w 
         LEFT JOIN 
         'set' s ON w.id = s.workout_id
-        ${name != null ? "WHERE w.name Like '%${name}%'" : ''}
+        ${conditions.isNotEmpty ? 'WHERE ${conditions.join(' AND ')}' : ''}
         GROUP BY w.id
         ORDER BY w.workout_date DESC;
       ''');
