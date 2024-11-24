@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -29,9 +30,25 @@ class WorkoutCalendar extends StatefulWidget {
 }
 
 class _WorkoutCalendarState extends State<WorkoutCalendar> {
+  final repository = WorkoutRepository();
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.week;
+  Map<DateTime, bool> _events = {};
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadEvents();
+  }
+
+  Future<void> _loadEvents() async {
+    final loadedEvents = await repository.getWorkoutEvents();
+    setState(() {
+      _events = loadedEvents;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,11 +83,8 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
           _focusedDay = focusedDay;
         },
         eventLoader: (day) {
-          if (day.weekday == DateTime.monday) {
-            return [Event('Cyclic event', true)];
-          }
-
-          return [];
+          final key = DateTime(day.year, day.month, day.day, 0, 0, 0);
+          return _events[key] == true ? [Event('운동', true)] : [];
         },
         headerStyle: const HeaderStyle(
           rightChevronVisible: false,

@@ -21,6 +21,22 @@ class WorkoutRepository {
     });
   }
 
+  Future<Map<DateTime, bool>> getWorkoutEvents() async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT 
+        Date(w.workout_date) as 'workout_date'
+        FROM 'workout' w
+        GROUP BY w.workout_date;
+      ''');
+
+    return Map.fromIterable(
+      maps,
+      key: (item) => DateTime.parse(item['workout_date']),
+      value: (item) => true,
+    );
+  }
+
   Future<List<Workout>> getWorkouts(
       {String? name, DateTime? workoutDate}) async {
     final conditions = [];
