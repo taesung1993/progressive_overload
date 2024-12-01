@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:progressive_overload/database/workout_repository.dart';
 
-import 'package:progressive_overload/model/workout_model.dart';
+import 'package:progressive_overload/providers/date_provider.dart';
+import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/add_workout_bottom_sheet.dart';
 
 import 'package:progressive_overload/widget/empty_workout.dart';
 import 'package:progressive_overload/widget/workout_calendar.dart';
-import 'package:progressive_overload/widget/workout_log.dart';
 import 'package:progressive_overload/widget/workout_log_list.dart';
+import 'package:provider/provider.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({Key? key}) : super(key: key);
@@ -19,16 +19,6 @@ class WorkoutScreen extends StatefulWidget {
 }
 
 class _WorkoutScreenState extends State<WorkoutScreen> {
-  final repository = WorkoutRepository();
-  DateTime workoutDate = DateTime.now();
-
-  Future<List<Workout>> getWorkouts({DateTime? workoutDate}) async {
-    final repository = WorkoutRepository();
-    return await repository.getWorkouts(
-      workoutDate: workoutDate,
-    );
-  }
-
   void load() {
     setState(() {});
   }
@@ -41,14 +31,18 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       useSafeArea: true,
       builder: (BuildContext context) {
         return AddWorkoutBottomSheet(
-          load: load,
-        );
+            // load: load,
+            );
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final workoutProvider = Provider.of<WorkoutProvider>(context);
+    final dateProvider = Provider.of<DateProvider>(context);
+    final selectedDate = dateProvider.selectedDate;
+
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -66,17 +60,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                         SliverToBoxAdapter(
                           child: WorkoutCalendar(
                             onSelectedDate: (selectedDate) {
-                              setState(() {
-                                workoutDate = selectedDate;
-                              });
+                              dateProvider.setSelectedDate(selectedDate);
                             },
                           ),
                         ),
                         SliverFillRemaining(
                           hasScrollBody: false,
                           child: FutureBuilder(
-                            future: getWorkouts(
-                              workoutDate: workoutDate,
+                            future: workoutProvider.fetchWorkouts(
+                              workoutDate: selectedDate,
                             ),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
