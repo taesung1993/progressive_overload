@@ -19,6 +19,18 @@ class WorkoutScreen extends StatefulWidget {
 }
 
 class _WorkoutScreenState extends State<WorkoutScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final workoutProvider =
+          Provider.of<WorkoutProvider>(context, listen: false);
+      final dateProvider = Provider.of<DateProvider>(context, listen: false);
+      workoutProvider.fetchWorkouts(workoutDate: dateProvider.selectedDate);
+    });
+  }
+
   void load() {
     setState(() {});
   }
@@ -30,9 +42,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       enableDrag: false,
       useSafeArea: true,
       builder: (BuildContext context) {
-        return AddWorkoutBottomSheet(
-            // load: load,
-            );
+        return AddWorkoutBottomSheet();
       },
     );
   }
@@ -42,6 +52,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     final workoutProvider = Provider.of<WorkoutProvider>(context);
     final dateProvider = Provider.of<DateProvider>(context);
     final selectedDate = dateProvider.selectedDate;
+    final loadingStatus = workoutProvider.loadingStatus;
 
     return Container(
       width: double.infinity,
@@ -61,55 +72,38 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                           child: WorkoutCalendar(
                             onSelectedDate: (selectedDate) {
                               dateProvider.setSelectedDate(selectedDate);
+                              workoutProvider.fetchWorkouts(
+                                workoutDate: selectedDate,
+                              );
                             },
                           ),
                         ),
                         SliverFillRemaining(
                           hasScrollBody: false,
-                          child: FutureBuilder(
-                            future: workoutProvider.fetchWorkouts(
-                              workoutDate: selectedDate,
-                            ),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-
-                              if (snapshot.hasError) {
-                                final error = (snapshot.error).toString();
-
-                                return Center(
-                                  child: Text('에러가 발생했습니다. $error'),
-                                );
-                              }
-
-                              if (snapshot.hasData) {
-                                if (snapshot.data == null) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-
-                                if (snapshot.data!.isEmpty) {
-                                  return EmptyWorkout(
-                                    openAddBottomSheet: openAddBottomSheet,
-                                  );
-                                }
-
-                                return WorkoutLogList(
-                                  workoutList: snapshot.data ?? [],
-                                  load: load,
-                                );
-                              }
-
-                              return const Center(
-                                child: Text('데이터가 없습니다.'),
-                              );
-                            },
-                          ),
+                          child: loadingStatus == LoadingStatus.loading
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: primary1Color,
+                                  ),
+                                )
+                              : loadingStatus == LoadingStatus.error
+                                  ? const Center(
+                                      child: Text('에러가 발생했습니다.'),
+                                    )
+                                  : loadingStatus == LoadingStatus.success
+                                      ? workoutProvider.workout.isEmpty
+                                          ? EmptyWorkout(
+                                              openAddBottomSheet:
+                                                  openAddBottomSheet,
+                                            )
+                                          : WorkoutLogList(
+                                              workoutList:
+                                                  workoutProvider.workout,
+                                              load: load,
+                                            )
+                                      : const Center(
+                                          child: Text('데이터가 없습니다.'),
+                                        ),
                         )
                       ],
                     ),

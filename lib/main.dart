@@ -6,7 +6,16 @@ import 'package:progressive_overload/screen/workout_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  initializeDateFormatting().then((_) => runApp(const MyApp()));
+  initializeDateFormatting().then((_) => runApp(
+        MultiProvider(providers: [
+          ChangeNotifierProvider(
+            create: (_) => DateProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => WorkoutProvider()..fetchWorkouts(),
+          )
+        ], child: const MyApp()),
+      ));
 }
 
 class MyApp extends StatelessWidget {
@@ -19,17 +28,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       home: SafeArea(
         child: Scaffold(
-          body: MultiProvider(
-            providers: [
-              ChangeNotifierProvider(
-                create: (_) => DateProvider(),
-              ),
-              ChangeNotifierProvider(
-                create: (_) => WorkoutProvider()..fetchWorkouts(),
-              )
-            ],
-            child: WorkoutScreen(),
-          ),
+          body: WorkoutScreen(),
         ),
       ),
     );
