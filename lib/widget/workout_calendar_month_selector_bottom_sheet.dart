@@ -5,9 +5,14 @@ import 'package:scroll_date_picker/scroll_date_picker.dart';
 
 class WorkoutCalendarMonthSelectorBottomSheet extends StatefulWidget {
   final DateTime selectedDate;
+  final DateTime startingDate;
+  final DateTime endingDate;
+
   final Function(DateTime value) onChange;
   const WorkoutCalendarMonthSelectorBottomSheet({
     super.key,
+    required this.startingDate,
+    required this.endingDate,
     required this.selectedDate,
     required this.onChange,
   });
@@ -28,12 +33,12 @@ class _WorkoutCalendarMonthSelectorBottomSheetState
 
   String get heading {
     final date = _selectedDate;
-    return '${date.year}년 ${date.month}월';
+    return '${date.year}년 ${date.month}월 ${date.day}일';
   }
 
   void onDateTimeChanged(DateTime value) {
     setState(() {
-      _selectedDate = value;
+      _selectedDate = DateTime(value.year, value.month, _selectedDate.day);
     });
   }
 
@@ -65,6 +70,8 @@ class _WorkoutCalendarMonthSelectorBottomSheetState
             height: 214,
             child: ScrollDatePicker(
               selectedDate: _selectedDate,
+              minimumDate: widget.startingDate,
+              maximumDate: widget.endingDate,
               locale: const Locale('ko'),
               onDateTimeChanged: onDateTimeChanged,
               viewType: const [

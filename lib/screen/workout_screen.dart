@@ -52,6 +52,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     final workoutProvider = Provider.of<WorkoutProvider>(context);
     final dateProvider = Provider.of<DateProvider>(context);
     final selectedDate = dateProvider.selectedDate;
+    final startingDate = dateProvider.startingDate;
+    final endingDate = dateProvider.endingDate;
     final loadingStatus = workoutProvider.loadingStatus;
 
     return Container(
@@ -70,10 +72,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       slivers: [
                         SliverToBoxAdapter(
                           child: WorkoutCalendar(
-                            onSelectedDate: (selectedDate) {
-                              dateProvider.setSelectedDate(selectedDate);
+                            selectedDate: selectedDate,
+                            startingDate: startingDate,
+                            endingDate: endingDate,
+                            onChangeDateTime: (value) {
+                              dateProvider.setSelectedDate(value);
                               workoutProvider.fetchWorkouts(
-                                workoutDate: selectedDate,
+                                workoutDate: value,
                               );
                             },
                           ),

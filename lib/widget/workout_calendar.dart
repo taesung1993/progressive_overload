@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
@@ -5,7 +7,6 @@ import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
 import 'package:progressive_overload/widget/workout_calendar_month_selector_bottom_sheet.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:scroll_date_picker/scroll_date_picker.dart';
 
 class Event {
   String title;
@@ -17,11 +18,17 @@ class Event {
 }
 
 class WorkoutCalendar extends StatefulWidget {
-  Function(DateTime selectedDate)? onSelectedDate;
+  final DateTime selectedDate;
+  final DateTime startingDate;
+  final DateTime endingDate;
+  Function(DateTime selectedDate) onChangeDateTime;
 
   WorkoutCalendar({
     Key? key,
-    this.onSelectedDate,
+    required this.selectedDate,
+    required this.startingDate,
+    required this.endingDate,
+    required this.onChangeDateTime,
   });
 
   @override
@@ -30,8 +37,8 @@ class WorkoutCalendar extends StatefulWidget {
 
 class _WorkoutCalendarState extends State<WorkoutCalendar> {
   final repository = WorkoutRepository();
-  DateTime _selectedDay = DateTime.now();
-  DateTime _focusedDay = DateTime.now();
+  late DateTime _selectedDate;
+  late DateTime _focusedDate;
   CalendarFormat _calendarFormat = CalendarFormat.week;
   Map<DateTime, bool> _events = {};
 
@@ -39,13 +46,32 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadEvents();
+    _selectedDate = widget.selectedDate;
+    _focusedDate = widget.selectedDate;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadEvents();
+    });
   }
 
   Future<void> _loadEvents() async {
     final loadedEvents = await repository.getWorkoutEvents();
     setState(() {
       _events = loadedEvents;
+    });
+  }
+
+  void onDaySelected(DateTime selectedDate, DateTime focusedDate) {
+    setState(() {
+      _selectedDate = selectedDate;
+      _focusedDate = focusedDate;
+      widget.onChangeDateTime(selectedDate);
+    });
+  }
+
+  void onFormatChanged(CalendarFormat format) {
+    setState(() {
+      _calendarFormat = format;
     });
   }
 
@@ -56,30 +82,17 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
       child: TableCalendar(
         locale: 'ko_KR',
         startingDayOfWeek: StartingDayOfWeek.monday,
-        focusedDay: _focusedDay,
-        firstDay: DateTime.utc(2024, 1, 1),
-        lastDay: DateTime.utc(DateTime.now().year, 13, 0),
+        focusedDay: _focusedDate,
+        firstDay: widget.startingDate,
+        lastDay: widget.endingDate,
         selectedDayPredicate: (day) {
-          return isSameDay(_selectedDay, day);
+          return isSameDay(_selectedDate, day);
         },
-        onDaySelected: (selectedDay, focusedDay) {
-          setState(() {
-            _selectedDay = selectedDay;
-            _focusedDay = focusedDay;
-          });
-
-          if (widget.onSelectedDate != null) {
-            widget.onSelectedDate!(selectedDay);
-          }
-        },
+        onDaySelected: onDaySelected,
         calendarFormat: _calendarFormat,
-        onFormatChanged: (format) {
-          setState(() {
-            _calendarFormat = format;
-          });
-        },
+        onFormatChanged: onFormatChanged,
         onPageChanged: (focusedDay) {
-          _focusedDay = focusedDay;
+          _focusedDate = focusedDay;
         },
         eventLoader: (day) {
           final key = DateTime(day.year, day.month, day.day, 0, 0, 0);
@@ -111,10 +124,13 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
                         context: context,
                         builder: (BuildContext context) {
                           return WorkoutCalendarMonthSelectorBottomSheet(
-                            selectedDate: _selectedDay,
+                            selectedDate: _selectedDate,
+                            startingDate: widget.startingDate,
+                            endingDate: widget.endingDate,
                             onChange: (value) => setState(() {
-                              _selectedDay = value;
-                              _focusedDay = value;
+                              _selectedDate = value;
+                              _focusedDate = value;
+                              widget.onChangeDateTime(value);
                             }),
                           );
                         },
