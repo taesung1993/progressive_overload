@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/typo.dart';
+import 'package:progressive_overload/widget/workout_calendar_month_selector_bottom_sheet.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:scroll_date_picker/scroll_date_picker.dart';
 
@@ -57,7 +58,7 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
         startingDayOfWeek: StartingDayOfWeek.monday,
         focusedDay: _focusedDay,
         firstDay: DateTime.utc(2024, 1, 1),
-        lastDay: DateTime.utc(2024, 13, 0),
+        lastDay: DateTime.utc(DateTime.now().year, 13, 0),
         selectedDayPredicate: (day) {
           return isSameDay(_selectedDay, day);
         },
@@ -109,98 +110,12 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
                       showModalBottomSheet(
                         context: context,
                         builder: (BuildContext context) {
-                          return Container(
-                            color: white,
-                            padding: const EdgeInsets.only(
-                              left: 20.0,
-                              right: 20.0,
-                              top: 40.0,
-                              bottom: 20.0,
-                            ),
-                            child: Column(
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  child: Typo.headingOneBold('2024년 11월',
-                                      color: black),
-                                ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 214,
-                                  child: ScrollDatePicker(
-                                    selectedDate: DateTime.now(),
-                                    locale: const Locale('ko'),
-                                    onDateTimeChanged: (DateTime value) {},
-                                    viewType: const [
-                                      DatePickerViewType.year,
-                                      DatePickerViewType.month,
-                                    ],
-                                    scrollViewOptions:
-                                        DatePickerScrollViewOptions(
-                                      year: ScrollViewDetailOptions(
-                                        label: '년',
-                                        alignment: Alignment.center,
-                                        textStyle: head3Medium.copyWith(
-                                          color: black,
-                                        ),
-                                        selectedTextStyle: head3Medium.copyWith(
-                                          color: black,
-                                        ),
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 20.0,
-                                        ),
-                                      ),
-                                      month: ScrollViewDetailOptions(
-                                        label: '월',
-                                        alignment: Alignment.center,
-                                        textStyle: head3Medium.copyWith(
-                                          color: black,
-                                        ),
-                                        selectedTextStyle: head3Medium.copyWith(
-                                          color: black,
-                                        ),
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 20.0,
-                                        ),
-                                      ),
-                                    ),
-                                    options: const DatePickerOptions(
-                                      itemExtent: 36.0,
-                                    ),
-                                    indicator: Container(
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                        color: lightgrey.withOpacity(0.7),
-                                        borderRadius: const BorderRadius.all(
-                                          Radius.circular(8),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Material(
-                                  child: Ink(
-                                    width: double.infinity,
-                                    height: 52,
-                                    decoration: BoxDecoration(
-                                      color: primary1Color,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: Center(
-                                        child: Typo.headingThreeBold(
-                                          '날짜 변경',
-                                          color: white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          return WorkoutCalendarMonthSelectorBottomSheet(
+                            selectedDate: _selectedDay,
+                            onChange: (value) => setState(() {
+                              _selectedDay = value;
+                              _focusedDay = value;
+                            }),
                           );
                         },
                       );
