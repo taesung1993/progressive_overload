@@ -6,16 +6,25 @@ import 'package:progressive_overload/screen/workout_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  initializeDateFormatting().then((_) => runApp(
-        MultiProvider(providers: [
-          ChangeNotifierProvider(
-            create: (_) => DateProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => WorkoutProvider()..fetchWorkouts(),
-          )
-        ], child: const MyApp()),
-      ));
+  initializeDateFormatting().then(
+    (_) => runApp(
+      MultiProvider(providers: [
+        ChangeNotifierProvider(
+          create: (_) => DateProvider(),
+        ),
+        ChangeNotifierProxyProvider<DateProvider, WorkoutProvider>(
+          create: (BuildContext context) => WorkoutProvider(
+              Provider.of<DateProvider>(context, listen: false)),
+          update: (BuildContext _, DateProvider dateProvider,
+              WorkoutProvider? workoutProvider) {
+            workoutProvider!
+                .fetchWorkouts(workoutDate: dateProvider.selectedDate);
+            return workoutProvider;
+          },
+        ),
+      ], child: const MyApp()),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

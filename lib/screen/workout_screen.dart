@@ -19,22 +19,6 @@ class WorkoutScreen extends StatefulWidget {
 }
 
 class _WorkoutScreenState extends State<WorkoutScreen> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final workoutProvider =
-          Provider.of<WorkoutProvider>(context, listen: false);
-      final dateProvider = Provider.of<DateProvider>(context, listen: false);
-      workoutProvider.fetchWorkouts(workoutDate: dateProvider.selectedDate);
-    });
-  }
-
-  void load() {
-    setState(() {});
-  }
-
   void openAddBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -77,9 +61,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                             endingDate: endingDate,
                             onChangeDateTime: (value) {
                               dateProvider.setSelectedDate(value);
-                              workoutProvider.fetchWorkouts(
-                                workoutDate: value,
-                              );
                             },
                           ),
                         ),
@@ -104,12 +85,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                                           : WorkoutLogList(
                                               workoutList:
                                                   workoutProvider.workout,
-                                              load: load,
                                             )
                                       : const Center(
                                           child: Text('데이터가 없습니다.'),
                                         ),
-                        )
+                        ),
                       ],
                     ),
                   ),

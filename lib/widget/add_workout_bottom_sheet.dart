@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:progressive_overload/providers/date_provider.dart';
 import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/load_workout_bottom_sheet.dart';
@@ -60,8 +59,6 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
   void _createWorkout(BuildContext context) async {
     final workoutProvider =
         Provider.of<WorkoutProvider>(context, listen: false);
-    final dateProvider = Provider.of<DateProvider>(context, listen: false);
-    final selectedDate = dateProvider.selectedDate;
 
     Workout newWorkout = Workout(
       name: workoutName,
@@ -78,7 +75,6 @@ class _AddWorkoutBottomSheetState extends State<AddWorkoutBottomSheet> {
     });
 
     await workoutProvider.addWorkout(newWorkout, newSets);
-    await workoutProvider.fetchWorkouts(workoutDate: selectedDate);
     Navigator.pop(context);
   }
 

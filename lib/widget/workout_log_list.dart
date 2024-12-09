@@ -4,12 +4,10 @@ import 'package:progressive_overload/widget/workout_log.dart';
 
 class WorkoutLogList extends StatefulWidget {
   final List<Workout> workoutList;
-  final Function() load;
 
   const WorkoutLogList({
     super.key,
     required this.workoutList,
-    required this.load,
   });
 
   @override
@@ -38,7 +36,6 @@ class _WorkoutLogListState extends State<WorkoutLogList> {
               name: workoutList[i].name,
               workoutId: workoutList[i].id!,
               sets: workoutList[i].sets!,
-              load: widget.load,
             ),
           ]
         ],

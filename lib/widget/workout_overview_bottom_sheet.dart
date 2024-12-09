@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/model/set_model.dart';
+import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/shared/styles.dart';
 import 'package:progressive_overload/widget/confirm_dialog.dart';
 import 'package:progressive_overload/widget/typo.dart';
 import 'package:progressive_overload/widget/workout_set.dart';
+import 'package:provider/provider.dart';
 
 class WorkoutOverviewBottomSheet extends StatefulWidget {
   final String name;
   final int workoutId;
   final List<Set> sets;
-  final Function()? load;
   final Function()? close;
 
   const WorkoutOverviewBottomSheet({
     required this.name,
     required this.workoutId,
     required this.sets,
-    this.load,
     this.close,
     super.key,
   });
@@ -58,11 +58,11 @@ class _WorkoutOverviewBottomSheetState
 
   void deleteWorkout() {
     onConfirm() async {
-      await repository.deleteWorkout(widget.workoutId);
+      final workoutProvider =
+          Provider.of<WorkoutProvider>(context, listen: false);
 
-      if (widget.load != null) {
-        widget.load!();
-      }
+      await workoutProvider.deleteWorkout(widget.workoutId);
+      // await workoutProvider.fetchWorkouts();
 
       if (widget.close != null) {
         widget.close!();
@@ -129,10 +129,6 @@ class _WorkoutOverviewBottomSheetState
 
       await repository.replaceSets(newSets, widget.workoutId);
 
-      if (widget.load != null) {
-        widget.load!();
-      }
-
       setState(() {
         copiedSets = List.from(newSets);
       });
@@ -160,9 +156,9 @@ class _WorkoutOverviewBottomSheetState
     await repository.replaceSets(newSets, widget.workoutId);
     await repository.getWorkouts();
 
-    if (widget.load != null) {
-      widget.load!();
-    }
+    // if (widget.load != null) {
+    //   widget.load!();
+    // }
 
     setState(() {
       isEdit = false;
