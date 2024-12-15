@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:progressive_overload/database/workout_repository.dart';
 import 'package:progressive_overload/model/set_model.dart';
 import 'package:progressive_overload/providers/workout_provider.dart';
 import 'package:progressive_overload/shared/styles.dart';
@@ -32,8 +31,9 @@ class _WorkoutOverviewBottomSheetState
     extends State<WorkoutOverviewBottomSheet> {
   bool isEdit = false;
   ScrollController _scrollController = ScrollController();
+
   late List<Set> copiedSets;
-  final repository = WorkoutRepository();
+  late WorkoutProvider workoutProvider;
 
   String get editableText => isEdit ? '편집취소' : '편집하기';
 
@@ -58,11 +58,7 @@ class _WorkoutOverviewBottomSheetState
 
   void deleteWorkout() {
     onConfirm() async {
-      final workoutProvider =
-          Provider.of<WorkoutProvider>(context, listen: false);
-
       await workoutProvider.deleteWorkout(widget.workoutId);
-      // await workoutProvider.fetchWorkouts();
 
       if (widget.close != null) {
         widget.close!();
@@ -119,15 +115,21 @@ class _WorkoutOverviewBottomSheetState
     }
 
     onConfirm() async {
-      List<Set> newSets = List.from(copiedSets);
+      List<Set> newSets = List.from(copiedSets)
+          .asMap()
+          .entries
+          .where((entry) => entry.key != index)
+          .map((entry) => Set(
+                weight: entry.value.weight,
+                reps: entry.value.reps,
+                sequence: entry.key + 1,
+              ))
+          .toList();
 
-      newSets.removeAt(index);
-
-      for (int i = 0; i < newSets.length; i++) {
-        newSets[i].sequence = i + 1;
-      }
-
-      await repository.replaceSets(newSets, widget.workoutId);
+      await workoutProvider.replaceSets(
+        workoutId: widget.workoutId,
+        sets: newSets,
+      );
 
       setState(() {
         copiedSets = List.from(newSets);
@@ -147,18 +149,20 @@ class _WorkoutOverviewBottomSheetState
   }
 
   void saveSet() async {
-    List<Set> newSets = List.from(copiedSets);
+    List<Set> newSets = copiedSets
+        .asMap()
+        .entries
+        .map((entry) => Set(
+              sequence: entry.key + 1,
+              weight: entry.value.weight,
+              reps: entry.value.reps,
+            ))
+        .toList();
 
-    for (int i = 0; i < newSets.length; i++) {
-      newSets[i].sequence = i + 1;
-    }
-
-    await repository.replaceSets(newSets, widget.workoutId);
-    await repository.getWorkouts();
-
-    // if (widget.load != null) {
-    //   widget.load!();
-    // }
+    await workoutProvider.replaceSets(
+      workoutId: widget.workoutId,
+      sets: newSets,
+    );
 
     setState(() {
       isEdit = false;
@@ -168,6 +172,8 @@ class _WorkoutOverviewBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    workoutProvider = Provider.of<WorkoutProvider>(context, listen: false);
+
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: SizedBox(

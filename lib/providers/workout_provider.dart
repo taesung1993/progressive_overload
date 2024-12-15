@@ -49,4 +49,16 @@ class WorkoutProvider with ChangeNotifier {
     await repository.deleteWorkout(workoutId);
     await fetchWorkouts(workoutDate: selectedDate);
   }
+
+  Future<void> replaceSets({
+    required int workoutId,
+    required List<Set> sets,
+  }) async {
+    final selectedDate = this.dateProvider!.selectedDate;
+    await repository.replaceSets(
+      workoutId: workoutId,
+      sets: sets,
+    );
+    await fetchWorkouts(workoutDate: selectedDate);
+  }
 }

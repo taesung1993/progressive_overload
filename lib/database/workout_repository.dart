@@ -127,7 +127,10 @@ class WorkoutRepository {
     });
   }
 
-  Future<int> replaceSets(List<Set> sets, int workoutId) async {
+  Future<int> replaceSets({
+    required int workoutId,
+    required List<Set> sets,
+  }) async {
     final db = await _dbHelper.database;
 
     return await db.transaction((txn) async {
