@@ -22,7 +22,7 @@ class _WorkoutLogListState extends State<WorkoutLogList> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 32, bottom: 20, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 32, bottom: 20, left: 16, right: 16),
       child: Column(
         children: [
           for (int i = 0; i < workoutList.length; i++) ...[
