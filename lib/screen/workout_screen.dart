@@ -35,10 +35,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   Widget build(BuildContext context) {
     final workoutProvider = Provider.of<WorkoutProvider>(context);
     final dateProvider = Provider.of<DateProvider>(context);
+
     final selectedDate = dateProvider.selectedDate;
     final startingDate = dateProvider.startingDate;
     final endingDate = dateProvider.endingDate;
+
     final loadingStatus = workoutProvider.loadingStatus;
+    final workoutEvents = workoutProvider.workoutEvents;
 
     return Container(
       width: double.infinity,
@@ -59,6 +62,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                             selectedDate: selectedDate,
                             startingDate: startingDate,
                             endingDate: endingDate,
+                            workoutEvents: workoutEvents,
                             onChangeDateTime: (value) {
                               dateProvider.setSelectedDate(value);
                             },

@@ -21,6 +21,7 @@ class WorkoutCalendar extends StatefulWidget {
   final DateTime selectedDate;
   final DateTime startingDate;
   final DateTime endingDate;
+  final Map<DateTime, bool> workoutEvents;
   Function(DateTime selectedDate) onChangeDateTime;
 
   WorkoutCalendar({
@@ -28,6 +29,7 @@ class WorkoutCalendar extends StatefulWidget {
     required this.selectedDate,
     required this.startingDate,
     required this.endingDate,
+    required this.workoutEvents,
     required this.onChangeDateTime,
   });
 
@@ -40,7 +42,7 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
   late DateTime _selectedDate;
   late DateTime _focusedDate;
   CalendarFormat _calendarFormat = CalendarFormat.week;
-  Map<DateTime, bool> _events = {};
+  // Map<DateTime, bool> _events = {};
 
   @override
   void initState() {
@@ -48,17 +50,6 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
     super.initState();
     _selectedDate = widget.selectedDate;
     _focusedDate = widget.selectedDate;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadEvents();
-    });
-  }
-
-  Future<void> _loadEvents() async {
-    final loadedEvents = await repository.getWorkoutEvents();
-    setState(() {
-      _events = loadedEvents;
-    });
   }
 
   void onDaySelected(DateTime selectedDate, DateTime focusedDate) {
@@ -96,7 +87,9 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
         },
         eventLoader: (day) {
           final key = DateTime(day.year, day.month, day.day, 0, 0, 0);
-          return _events[key] == true ? [Event('운동', true)] : [];
+          return widget.workoutEvents.containsKey(key)
+              ? [Event('운동', true)]
+              : [];
         },
         headerStyle: const HeaderStyle(
           rightChevronVisible: false,

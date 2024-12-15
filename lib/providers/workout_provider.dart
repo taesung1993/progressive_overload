@@ -14,15 +14,22 @@ class WorkoutProvider with ChangeNotifier {
 
   LoadingStatus _loadingStatus = LoadingStatus.idle;
   List<Workout> _workouts = [];
+  Map<DateTime, bool> _workoutEvents = {};
 
   get loadingStatus => _loadingStatus;
   get workout => _workouts;
+  get workoutEvents => _workoutEvents;
+
+  Future<void> fetchWorkoutEvents() async {
+    _workoutEvents = await repository.getWorkoutEvents();
+  }
 
   Future<void> fetchWorkouts({DateTime? workoutDate}) async {
     try {
       _loadingStatus = LoadingStatus.loading;
       notifyListeners();
       _workouts = await repository.getWorkouts(workoutDate: workoutDate);
+      await fetchWorkoutEvents();
       _loadingStatus = LoadingStatus.success;
     } catch (error) {
       _loadingStatus = LoadingStatus.error;
