@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:progressive_overload/database/workout_repository.dart';
@@ -42,7 +40,6 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
   late DateTime _selectedDate;
   late DateTime _focusedDate;
   CalendarFormat _calendarFormat = CalendarFormat.week;
-  // Map<DateTime, bool> _events = {};
 
   @override
   void initState() {
@@ -70,193 +67,212 @@ class _WorkoutCalendarState extends State<WorkoutCalendar> {
   Widget build(BuildContext context) {
     return Container(
       color: primary3Color,
-      child: TableCalendar(
-        locale: 'ko_KR',
-        startingDayOfWeek: StartingDayOfWeek.monday,
-        focusedDay: _focusedDate,
-        firstDay: widget.startingDate,
-        lastDay: widget.endingDate,
-        selectedDayPredicate: (day) {
-          return isSameDay(_selectedDate, day);
-        },
-        onDaySelected: onDaySelected,
-        calendarFormat: _calendarFormat,
-        onFormatChanged: onFormatChanged,
-        onPageChanged: (focusedDay) {
-          _focusedDate = focusedDay;
-        },
-        eventLoader: (day) {
-          final key = DateTime(day.year, day.month, day.day, 0, 0, 0);
-          return widget.workoutEvents.containsKey(key)
-              ? [Event('운동', true)]
-              : [];
-        },
-        headerStyle: const HeaderStyle(
-          rightChevronVisible: false,
-          leftChevronVisible: false,
-          formatButtonVisible: false,
-          headerPadding: EdgeInsets.zero,
-        ),
-        calendarBuilders: CalendarBuilders(
-          headerTitleBuilder: (context, day) {
-            return Container(
-              color: white,
-              padding: const EdgeInsets.symmetric(
-                vertical: 12.0,
-                horizontal: 20.0,
-              ),
-              child: Row(
-                children: [
-                  Typo.headingOneBold(
-                    '${day.year}년 ${day.month}월',
-                    color: black,
+      child: Stack(
+        children: [
+          TableCalendar(
+            locale: 'ko_KR',
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            focusedDay: _focusedDate,
+            firstDay: widget.startingDate,
+            lastDay: widget.endingDate,
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDate, day);
+            },
+            onDaySelected: onDaySelected,
+            calendarFormat: _calendarFormat,
+            onFormatChanged: onFormatChanged,
+            onPageChanged: (focusedDay) {
+              _focusedDate = focusedDay;
+            },
+            eventLoader: (day) {
+              final key = DateTime(day.year, day.month, day.day, 0, 0, 0);
+              return widget.workoutEvents.containsKey(key)
+                  ? [Event('운동', true)]
+                  : [];
+            },
+            headerStyle: const HeaderStyle(
+              rightChevronVisible: false,
+              leftChevronVisible: false,
+              formatButtonVisible: false,
+              headerPadding: EdgeInsets.zero,
+            ),
+            calendarBuilders: CalendarBuilders(
+              headerTitleBuilder: (context, day) {
+                return Container(
+                  color: white,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 20.0,
                   ),
-                  IconButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return WorkoutCalendarMonthSelectorBottomSheet(
-                            selectedDate: _selectedDate,
-                            startingDate: widget.startingDate,
-                            endingDate: widget.endingDate,
-                            onChange: (value) => setState(() {
-                              _selectedDate = value;
-                              _focusedDate = value;
-                              widget.onChangeDateTime(value);
-                            }),
+                  child: Row(
+                    children: [
+                      Typo.headingOneBold(
+                        '${day.year}년 ${day.month}월',
+                        color: black,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return WorkoutCalendarMonthSelectorBottomSheet(
+                                selectedDate: _selectedDate,
+                                startingDate: widget.startingDate,
+                                endingDate: widget.endingDate,
+                                onChange: (value) => setState(() {
+                                  _selectedDate = value;
+                                  _focusedDate = value;
+                                  widget.onChangeDateTime(value);
+                                }),
+                              );
+                            },
                           );
                         },
-                      );
-                    },
-                    icon: SvgPicture.asset(
-                      'assets/svg/chevron_down.svg',
-                    ),
+                        icon: SvgPicture.asset(
+                          'assets/svg/chevron_down.svg',
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                );
+              },
+              defaultBuilder: (context, date, _) {
+                return Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Typo.TextOneRegular(
+                    '${date.day}',
+                    color: black,
+                  ),
+                );
+              },
+              selectedBuilder: (context, date, _) {
+                return Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: primary1Color,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Typo.TextOneRegular(
+                    '${date.day}',
+                    color: white,
+                  ),
+                );
+              },
+              disabledBuilder: (context, date, _) {
+                return Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Typo.TextOneRegular(
+                    '${date.day}',
+                    color: grey,
+                  ),
+                );
+              },
+              todayBuilder: (context, date, _) {
+                return Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Typo.TextOneRegular(
+                    '${date.day}',
+                    color: black,
+                  ),
+                );
+              },
+              outsideBuilder: (context, date, _) {
+                return Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Typo.TextOneRegular(
+                    '${date.day}',
+                    color: grey,
+                  ),
+                );
+              },
+              holidayBuilder: (context, date, _) {
+                return Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Typo.TextOneRegular(
+                    '${date.day}',
+                    color: black,
+                  ),
+                );
+              },
+            ),
+            rowHeight: 50,
+            daysOfWeekHeight: 40,
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: text2Medium.copyWith(color: darkgrey),
+              weekendStyle: text2Medium.copyWith(color: darkgrey),
+            ),
+            calendarStyle: const CalendarStyle(
+              tablePadding: EdgeInsets.only(
+                top: 12,
+                bottom: 40,
+                left: 10,
+                right: 10,
               ),
-            );
-          },
-          defaultBuilder: (context, date, _) {
-            return Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Typo.TextOneRegular(
-                '${date.day}',
-                color: black,
-              ),
-            );
-          },
-          selectedBuilder: (context, date, _) {
-            return Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
+              markerDecoration: BoxDecoration(
                 color: primary1Color,
-                borderRadius: BorderRadius.circular(10.0),
+                shape: BoxShape.circle,
               ),
-              child: Typo.TextOneRegular(
-                '${date.day}',
-                color: white,
+              markerSize: 4,
+              markerMargin: EdgeInsets.only(
+                top: 8,
+                left: 0,
+                right: 0,
+                bottom: 0,
               ),
-            );
-          },
-          disabledBuilder: (context, date, _) {
-            return Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Typo.TextOneRegular(
-                '${date.day}',
-                color: grey,
-              ),
-            );
-          },
-          todayBuilder: (context, date, _) {
-            return Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Typo.TextOneRegular(
-                '${date.day}',
-                color: black,
-              ),
-            );
-          },
-          outsideBuilder: (context, date, _) {
-            return Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Typo.TextOneRegular(
-                '${date.day}',
-                color: grey,
-              ),
-            );
-          },
-          holidayBuilder: (context, date, _) {
-            return Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Typo.TextOneRegular(
-                '${date.day}',
-                color: black,
-              ),
-            );
-          },
-        ),
-        rowHeight: 50,
-        daysOfWeekHeight: 40,
-        daysOfWeekStyle: DaysOfWeekStyle(
-          weekdayStyle: text2Medium.copyWith(color: darkgrey),
-          weekendStyle: text2Medium.copyWith(color: darkgrey),
-        ),
-        calendarStyle: const CalendarStyle(
-          tablePadding: EdgeInsets.only(
-            top: 12,
-            bottom: 40,
-            left: 10,
-            right: 10,
+              cellMargin: EdgeInsets.all(0),
+              cellPadding: EdgeInsets.all(0),
+              markerSizeScale: 1.0,
+              markersAnchor: 1.0,
+            ),
           ),
-          markerDecoration: BoxDecoration(
-            color: primary1Color,
-            shape: BoxShape.circle,
-          ),
-          markerSize: 4,
-          markerMargin: EdgeInsets.only(
-            top: 8,
+          Positioned(
+            bottom: 16,
             left: 0,
             right: 0,
-            bottom: 0,
+            child: Center(
+              child: Container(
+                width: 70,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: grey.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+              ),
+            ),
           ),
-          cellMargin: EdgeInsets.all(0),
-          cellPadding: EdgeInsets.all(0),
-          markerSizeScale: 1.0,
-          markersAnchor: 1.0,
-        ),
+        ],
       ),
     );
   }
